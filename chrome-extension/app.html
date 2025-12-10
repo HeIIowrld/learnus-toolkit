@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnUs Downloader</title>
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 LearnUs Contents Downloader</h1>
+        </div>
+        
+        <!-- Navigation Bar -->
+        <div class="nav-bar hidden" id="navBar">
+            <button class="nav-btn active" id="navMain">📚 Courses & Lectures</button>
+            <button class="nav-btn" id="navVideos">📁 Downloaded Files</button>
+            <button class="nav-btn" id="navSettings">⚙️ Settings</button>
+            
+            <!-- Quick Toggle Switches -->
+            <div class="toggle-group">
+                <label class="toggle-label" title="LearnUs 페이지에 다운로드 버튼 표시">
+                    <span>페이지 버튼</span>
+                    <div class="toggle-switch" id="toggleInlineButtons"></div>
+                </label>
+                <label class="toggle-label" title="과제 마감 알림 활성화">
+                    <span>과제 알림</span>
+                    <div class="toggle-switch" id="toggleAssignmentAlerts"></div>
+                </label>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Login Section -->
+            <div class="section" id="loginSection">
+                <h2>1. Login</h2>
+                <div id="loginMessage"></div>
+                <div class="form-group">
+                    <label for="username">Yonsei ID</label>
+                    <input type="text" id="username" placeholder="Enter your Yonsei ID">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+                <button class="btn btn-primary" id="loginBtn">Login</button>
+            </div>
+            
+            <!-- Loading Section -->
+            <div class="section hidden" id="loadingSection">
+                <h2>Loading Courses...</h2>
+                <div class="message message-info">
+                    🔄 Fetching courses and videos from LearnUs...
+                </div>
+            </div>
+            
+            <!-- Main Page (Courses & Lectures) -->
+            <div class="page hidden" id="mainPage">
+            <!-- Urgent Assignments Section (only shown if enabled) -->
+            <div class="section hidden" id="urgentSection" style="background-color: #fff3cd; border: 2px solid #ffeeba; border-radius: 8px; margin-bottom: 20px;">
+                <h2 style="color: #856404; margin-top: 0;">⚠️ 마감 임박 / 미완료 과제</h2>
+                <div id="urgentList">
+                    <p style="color: #666;">과제 정보를 불러오는 중...</p>
+                </div>
+            </div>
+            
+            <!-- Assignment Dashboard (only shown if enabled) -->
+            <div class="section hidden" id="assignmentDashboard" style="margin-bottom: 20px;">
+                <h2>📋 과제 현황</h2>
+                <div class="options-group" style="margin-bottom: 15px;">
+                    <label class="option-label">
+                        <input type="checkbox" id="hideCompleted" checked>
+                        <span>완료된 항목 숨기기</span>
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" id="hideIgnored" checked>
+                        <span>숨긴 항목 보지 않기</span>
+                    </label>
+                </div>
+                <div id="assignmentList">
+                    <p style="color: #666;">과제 정보를 불러오는 중...</p>
+                </div>
+            </div>
+                
+                <!-- Semester Navigation -->
+                <div class="section hidden" id="semesterNavSection">
+                    <button class="btn btn-secondary" id="toggleSemesterBtn" style="width: 100%; text-align: left;">
+                        <span id="navToggleIcon">▶</span> Browse Other Semesters
+                    </button>
+                    <div id="semesterNavMenu" class="hidden" style="margin-top: 10px; padding: 15px; background: #fff; border-radius: 8px; border: 1px solid #ddd;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                            <input type="number" id="customYear" placeholder="Year (e.g. 2024)" style="flex: 1; min-width: 120px; padding: 8px;">
+                            <select id="customSemester" style="flex: 1; min-width: 150px; padding: 8px;">
+                                <option value="">Select Semester</option>
+                                <option value="10">1st Semester (1학기)</option>
+                                <option value="20">2nd Semester (2학기)</option>
+                                <option value="11">Summer (여름학기)</option>
+                                <option value="21">Winter (겨울학기)</option>
+                            </select>
+                            <button class="btn btn-success" id="loadSemesterBtn">Load</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Course Section -->
+                <div class="section" id="courseSection">
+                    <h2>My Courses</h2>
+                    <div id="courseMessage"></div>
+                    <div class="options-group">
+                        <label class="option-label">
+                            <input type="checkbox" id="downloadNewOnlyCheckbox">
+                            <span>Download New Only</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-secondary" id="refreshBtn">Refresh</button>
+                        <button class="btn btn-secondary" id="selectAllBtn">Select All</button>
+                        <button class="btn btn-secondary" id="selectNoneBtn">Deselect All</button>
+                        <button class="btn btn-danger" id="logoutBtn">Logout</button>
+                    </div>
+                    <div id="coursesList"></div>
+                    <button class="btn btn-success" id="downloadBtn">Download Selected</button>
+                </div>
+            </div>
+            
+            <!-- Downloaded Files Page -->
+            <div class="page hidden" id="videosPage">
+                <div class="section">
+                    <h2>Downloaded Files</h2>
+                    <div id="videosMessage"></div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" id="refreshVideosBtn">Refresh</button>
+                    </div>
+                    <div id="videosContainer"></div>
+                </div>
+            </div>
+            
+            <!-- Settings Page -->
+            <div class="page hidden" id="settingsPage">
+                <div class="section">
+                    <h2>Settings</h2>
+                    
+                    <h3 style="margin-top: 20px; margin-bottom: 10px;">Download Settings</h3>
+                    <div class="form-group">
+                        <label for="downloadDir">Download Subdirectory</label>
+                        <input type="text" id="downloadDir" placeholder="LearnUs (or leave empty for default)">
+                        <small style="display: block; margin-top: 5px; color: #666;">Subdirectory name within your default download folder</small>
+                    </div>
+                    <button class="btn btn-primary" id="saveDownloadSettingsBtn">Save Download Settings</button>
+                    
+                    <h3 style="margin-top: 30px; margin-bottom: 10px;">LLM API Settings (for RAG features)</h3>
+                    <div class="form-group">
+                        <label for="llmProvider">Provider</label>
+                        <select id="llmProvider">
+                            <option value="openai">OpenAI</option>
+                            <option value="google">Google (Gemini)</option>
+                            <option value="ollama">Ollama</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="openaiApiKey">OpenAI API Key</label>
+                        <input type="password" id="openaiApiKey" placeholder="sk-...">
+                    </div>
+                    <div class="form-group">
+                        <label for="googleApiKey">Google API Key</label>
+                        <input type="password" id="googleApiKey" placeholder="...">
+                    </div>
+                    <div class="form-group">
+                        <label for="ollamaUrl">Ollama URL</label>
+                        <input type="text" id="ollamaUrl" placeholder="http://localhost:11434" value="http://localhost:11434">
+                    </div>
+                    <button class="btn btn-primary" id="saveLLMSettingsBtn">Save LLM Settings</button>
+                    <div id="llmSettingsMessage" style="margin-top: 10px;"></div>
+                    <div id="featureSettingsMessage" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+            
+            <!-- Progress Section -->
+            <div class="section hidden" id="progressSection">
+                <h2>Download Progress</h2>
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <button class="btn btn-secondary" id="pauseBtn" onclick="pauseTask()" style="display: none; font-size: 0.8em; padding: 4px 8px;">⏸️ Pause</button>
+                    <button class="btn btn-secondary" id="resumeBtn" onclick="resumeTask()" style="display: none; font-size: 0.8em; padding: 4px 8px;">▶️ Resume</button>
+                    <button class="btn btn-secondary" id="stopBtn" onclick="stopTask()" style="display: none; font-size: 0.8em; padding: 4px 8px;">⏹️ Stop</button>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+                </div>
+                <div class="task-log" id="taskLog"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- jsencrypt library for RSA encryption (local file) -->
+    <script src="jsencrypt.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+

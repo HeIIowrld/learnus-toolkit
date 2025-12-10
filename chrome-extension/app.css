@@ -1,0 +1,548 @@
+/* Main app styles - consolidated from popup.css and injected.css */
+
+:root {
+    --yonsei-blue: #003d82;
+    --yonsei-light-blue: #0052a3;
+    --yonsei-dark-blue: #002d5f;
+    --bg-color: #f5f5f5;
+    --card-bg: #ffffff;
+    --border-color: #ddd;
+    --text-color: #333;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    background: var(--yonsei-blue);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.nav-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.nav-btn {
+    flex: 1;
+    padding: 10px 16px;
+    background: transparent;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: #f0f0f0;
+}
+
+.nav-btn.active {
+    background: var(--yonsei-blue);
+    color: white;
+    border-color: var(--yonsei-blue);
+}
+
+/* Toggle switches in nav bar */
+.nav-bar .toggle-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+    padding-left: 10px;
+    border-left: 1px solid var(--border-color);
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    background: #ccc;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.toggle-switch.active {
+    background: var(--yonsei-blue);
+}
+
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s;
+}
+
+.toggle-switch.active::after {
+    left: 22px;
+}
+
+.section {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.page {
+    display: block;
+}
+
+.page.hidden {
+    display: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: var(--yonsei-blue);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--yonsei-light-blue);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+.btn-danger {
+    background: var(--error-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--yonsei-blue);
+}
+
+.options-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.option-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.message {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.message-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.message-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.course-group {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.course-group h3 {
+    margin: 0 0 10px 0;
+    color: var(--yonsei-blue);
+}
+
+.lecture-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.lecture-item:hover {
+    background: #f0f0f0;
+}
+
+.lecture-checkbox {
+    margin-right: 10px;
+}
+
+.lecture-info {
+    flex: 1;
+}
+
+.lecture-title {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.lecture-meta {
+    font-size: 12px;
+    color: #666;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.status-new {
+    background: #ffc107;
+    color: #856404;
+}
+
+.status-done {
+    background: #28a745;
+    color: white;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 30px;
+    background: #e9ecef;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--yonsei-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    transition: width 0.3s;
+}
+
+.task-log {
+    max-height: 300px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.task-log div {
+    padding: 4px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.task-log div:last-child {
+    border-bottom: none;
+}
+
+/* Inline download button styles (for injected.js) */
+.learnus-inline-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin-left: 6px;
+    background: var(--yonsei-blue);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    vertical-align: middle;
+}
+
+.learnus-inline-btn:hover:not(:disabled) {
+    background: var(--yonsei-light-blue);
+    transform: scale(1.1);
+}
+
+.learnus-inline-btn:disabled,
+.learnus-inline-btn.restricted {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.learnus-batch-btn {
+    display: block;
+    padding: 8px 12px;
+    margin: 8px 0;
+    background: var(--yonsei-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.learnus-batch-btn:hover:not(:disabled) {
+    background: var(--yonsei-light-blue);
+}
+
+.learnus-batch-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.learnus-course-download-btn {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 10000;
+    padding: 10px 16px;
+    background: var(--yonsei-blue);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.learnus-course-download-btn:hover {
+    background: var(--yonsei-light-blue);
+}
+
+/* AI Panel styles */
+.learnus-ai-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 400px;
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.learnus-ai-panel.open {
+    transform: translateX(0);
+}
+
+.learnus-ai-header {
+    padding: 16px;
+    background: var(--yonsei-blue);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.learnus-ai-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.learnus-ai-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+}
+
+.learnus-ai-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.learnus-ai-input-area {
+    padding: 16px;
+    border-top: 1px solid #ddd;
+    background: #f8f9fa;
+}
+
+.learnus-ai-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    resize: none;
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+.learnus-ai-send-btn {
+    margin-top: 8px;
+    padding: 8px 16px;
+    background: var(--yonsei-blue);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.learnus-ai-send-btn:hover {
+    background: var(--yonsei-light-blue);
+}
+
+.learnus-ai-message {
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 8px;
+    word-wrap: break-word;
+}
+
+.learnus-ai-message.user {
+    background: #e3f2fd;
+    margin-left: 40px;
+}
+
+.learnus-ai-message.assistant {
+    background: #f5f5f5;
+    margin-right: 40px;
+}
+
+.learnus-ai-loading {
+    text-align: center;
+    padding: 16px;
+    color: #666;
+}
+

@@ -1,0 +1,12 @@
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+tqdm>=4.66.0
+flask>=3.0.0
+cryptography>=41.0.0
+pycryptodome>=3.19.0
+ffmpeg-python>=0.2.0
+python-dotenv>=1.0.0
+# Note: openai-whisper, opencv-python, numpy NOT included - transcription/analysis disabled
+# openai package included for future LLM API features
+openai>=1.0.0
+

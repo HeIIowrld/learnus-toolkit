@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "LearnUs Video Downloader",
+  "version": "1.0.0",
+  "description": "Download lecture videos from Yonsei LearnUs",
+  "permissions": [
+    "storage",
+    "downloads",
+    "tabs",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://ys.learnus.org/*",
+    "https://infra.yonsei.ac.kr/*",
+    "https://portal.yonsei.ac.kr/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://ys.learnus.org/*"],
+      "js": ["injected.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_page": "options.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js", "app.html", "jsencrypt.min.js"],
+      "matches": ["https://ys.learnus.org/*"]
+    }
+  ]
+}
+

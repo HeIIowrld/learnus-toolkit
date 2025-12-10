@@ -1,0 +1,2951 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnUs Contents Downloader</title>
+    <style>
+        :root {
+            --yonsei-blue: #003875;
+            --yonsei-light: #f4f7fb;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #e1e4e8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f4f5f7;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 56, 117, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 80vh;
+        }
+
+        .header {
+            background: var(--yonsei-blue);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            opacity: 0.8;
+            font-size: 0.9em;
+            margin: 0;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 20px;
+        }
+
+        .nav-btn {
+            padding: 18px 25px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            color: var(--yonsei-blue);
+            background: #f8f9fa;
+        }
+
+        .nav-btn.active {
+            color: var(--yonsei-blue);
+            border-bottom-color: var(--yonsei-blue);
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 30px;
+            flex: 1;
+            background: white;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            font-size: 1.4em;
+            border-left: 4px solid var(--yonsei-blue);
+            padding-left: 12px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="url"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--yonsei-blue);
+            box-shadow: 0 0 0 3px rgba(0, 56, 117, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--yonsei-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #002952;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .btn-success {
+            background: #198754;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #157347;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Messages */
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        .message-success {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .message-error {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .message-info {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        /* Course Cards */
+        .course-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+
+        .course-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .course-header {
+            padding: 20px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid transparent;
+        }
+
+        .course-header:hover {
+            background: #fafbfc;
+        }
+
+        .course-body {
+            background: #fafbfc;
+            border-top: 1px solid var(--border-color);
+            padding: 20px;
+            display: none;
+        }
+
+        /* Section Items */
+        .section-block {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-select {
+            margin-right: 15px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            background: #eee;
+            color: #666;
+            margin-left: 8px;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 15px 0;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--yonsei-blue);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        /* Task Log */
+        .task-log {
+            height: 200px;
+            overflow-y: auto;
+            background: #2d3436;
+            color: #dfe6e9;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .item-progress {
+            margin-top: 5px;
+        }
+
+        .item-progress.hidden {
+            display: none !important;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 LearnUs Contents Downloader</h1>
+            <p>Download, transcribe, and summarize your lecture videos</p>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <button class="nav-btn active" id="navMain" onclick="showMainPage()">📚 Courses & Lectures</button>
+            <button class="nav-btn" id="navDownload" onclick="showDownloadPage()">⬇️ Download New</button>
+            <button class="nav-btn" id="navVideos" onclick="showVideosPage()">📁 Downloaded Files</button>
+            <button class="nav-btn" id="navSettings" onclick="showSettingsPage()">⚙️ Settings</button>
+        </div>
+
+        <div class="content">
+            <!-- Login Section -->
+            <div class="section hidden" id="loginSection">
+                <h2>1. Login</h2>
+                <div id="loginMessage"></div>
+                <div class="message message-info" style="margin-bottom: 15px;">
+                    💡 <strong>Auto-login failed.</strong> Please enter your credentials manually, or check your
+                    <code>.env</code> file.
+                    See <code>.env.example</code> for instructions.
+                </div>
+                <div class="form-group">
+                    <label for="username">Yonsei ID</label>
+                    <input type="text" id="username" placeholder="Enter your Yonsei ID">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+                <button class="btn btn-primary" onclick="handleLogin()">Login</button>
+            </div>
+
+            <!-- Main Page (Courses & Lectures) -->
+            <div class="page" id="mainPage">
+                <!-- Auto-login Status -->
+                <div class="section" id="autoLoginSection">
+                    <h2>1. Authenticating...</h2>
+                    <div id="autoLoginMessage">
+                        <div class="message message-info">
+                            🔐 Attempting automatic login using credentials from <code>.env</code> file...
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Semester Navigation Menu (Collapsible) -->
+                <div class="section hidden" id="semesterNavSection">
+                    <div style="margin-bottom: 20px;">
+                        <button class="btn btn-secondary" onclick="toggleSemesterNav()"
+                            style="width: 100%; text-align: left; padding: 15px;">
+                            <span id="navToggleIcon">▶</span> Browse Other Semesters
+                        </button>
+                        <div id="semesterNavMenu"
+                            style="display: none; margin-top: 10px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+                            <h3 style="margin-top: 0; font-size: 1.1em; color: #333;">Select Semester</h3>
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                                <!-- Quick access buttons for recent semesters -->
+                                <button class="btn btn-primary" onclick="loadSemester('2024', '20')">2024 - 2nd
+                                    Semester</button>
+                                <button class="btn btn-primary" onclick="loadSemester('2024', '10')">2024 - 1st
+                                    Semester</button>
+                                <button class="btn btn-primary" onclick="loadSemester('2023', '20')">2023 - 2nd
+                                    Semester</button>
+                                <button class="btn btn-primary" onclick="loadSemester('2023', '10')">2023 - 1st
+                                    Semester</button>
+                            </div>
+                            <div style="border-top: 1px solid #ccc; padding-top: 15px; margin-top: 15px;">
+                                <p style="margin: 0 0 10px 0; font-weight: 500; color: #666;">Select from available semesters or enter custom:</p>
+                                
+                                <!-- Dropdown for available semesters -->
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                                    <select id="availableSemesterSelect"
+                                        style="flex: 2; min-width: 250px; padding: 12px; border: 2px solid #ddd; border-radius: 8px;"
+                                        onchange="loadFromAvailableSemester()">
+                                        <option value="">-- Select from available semesters --</option>
+                                    </select>
+                                    <button class="btn btn-success" onclick="loadFromAvailableSemester()" style="flex: 0;">Load</button>
+                                </div>
+                                
+                                <!-- Manual entry option -->
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                                    <span style="color: #666;">Or enter custom:</span>
+                                    <input type="number" id="customYear" placeholder="Year (e.g. 2022)"
+                                        style="flex: 1; min-width: 120px; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
+                                    <select id="customSemester"
+                                        style="flex: 1; min-width: 180px; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
+                                        <option value="">Select Semester</option>
+                                        <option value="10">1st Semester (1학기)</option>
+                                        <option value="20">2nd Semester (2학기)</option>
+                                        <option value="11">Summer (여름학기)</option>
+                                        <option value="21">Winter (겨울학기)</option>
+                                    </select>
+                                    <button class="btn btn-success" onclick="loadCustomSemester()">Go</button>
+                                </div>
+                            </div>
+                            <div style="margin-top: 15px; text-align: center;">
+                                <button class="btn btn-secondary" onclick="loadCurrentSemester()">↻ Back to Current
+                                    Semester</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Section -->
+                <div class="section hidden" id="courseSection">
+                    <h2>My Courses</h2>
+                    <div id="courseMessage"></div>
+
+                    <!-- Global Options -->
+                    <div class="options-group"
+                        style="margin-bottom: 20px; padding: 15px; background: #e9ecef; border-radius: 8px; flex-wrap: wrap;">
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; width: 100%; margin-bottom: 10px;">
+                            <button class="btn btn-secondary" onclick="selectAllItems()" style="font-size: 0.9em; padding: 6px 12px;">
+                                ☑️ Select All
+                            </button>
+                            <button class="btn btn-secondary" onclick="deselectAllItems()" style="font-size: 0.9em; padding: 6px 12px;">
+                                ☐ Deselect All
+                            </button>
+                            <input type="number" id="global-range-start" placeholder="From" min="1" 
+                                   style="width: 60px; padding: 5px; font-size: 0.85em; border: 1px solid #ccc; border-radius: 4px;">
+                            <span style="font-size: 0.85em;">to</span>
+                            <input type="number" id="global-range-end" placeholder="To" min="1" 
+                                   style="width: 60px; padding: 5px; font-size: 0.85em; border: 1px solid #ccc; border-radius: 4px;">
+                            <button class="btn btn-secondary" onclick="selectRangeAllItems()" style="font-size: 0.9em; padding: 6px 12px;">
+                                🎯 Select Range
+                            </button>
+                        </div>
+                        <label class="option-label">
+                            <input type="checkbox" id="downloadNewOnlyCheckbox" onchange="handleDownloadNewOnlyChange()">
+                            <span>Download New Only</span>
+                        </label>
+                        <label class="option-label" title="Enable parallel downloads for faster performance (uses more CPU and bandwidth)">
+                            <input type="checkbox" id="multiprocessingCheckbox">
+                            <span>⚡ Use Multiprocessing</span>
+                        </label>
+                        {% if is_local_mode %}
+                        <label class="option-label">
+                            <input type="checkbox" id="transcribeCheckbox">
+                            <span>Transcribe Videos</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="checkbox" id="summarizeCheckbox">
+                            <span>Summarize</span>
+                        </label>
+                        <label class="option-label">
+                            <input type="checkbox" id="analyzeVideoCheckbox">
+                            <span>Analyze Frames</span>
+                        </label>
+                        {% else %}
+                        <div style="padding: 8px; background: #fff3cd; border-radius: 4px; font-size: 0.85em; color: #856404;">
+                            ℹ️ Local processing (transcription/analysis) disabled in web mode. Configure LLM APIs in Settings for future features.
+                        </div>
+                        {% endif %}
+                        <button class="btn btn-success" onclick="startUnifiedDownload()" style="margin-left: auto;">
+                            ⬇️ Download Selected Items
+                        </button>
+                    </div>
+
+                    <!-- Overall Progress Section -->
+                    <div id="overallProgressSection" class="hidden" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h3 style="margin: 0;">Overall Progress</h3>
+                            <div>
+                                <button id="pauseBtn" class="btn btn-warning btn-sm" onclick="pauseCurrentTask()" style="display: none;">⏸️ Pause</button>
+                                <button id="resumeBtn" class="btn btn-success btn-sm" onclick="resumeCurrentTask()" style="display: none;">▶️ Resume</button>
+                                <button id="cancelBtn" class="btn btn-danger btn-sm" onclick="cancelCurrentTask()" style="display: none;">❌ Cancel</button>
+                            </div>
+                        </div>
+                        <div style="background: #e9ecef; border-radius: 4px; height: 30px; position: relative; overflow: hidden;">
+                            <div id="overallProgressFill" style="background: #28a745; height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                0%
+                            </div>
+                        </div>
+                        <div id="overallProgressText" style="margin-top: 5px; font-size: 0.9em; color: #666;"></div>
+                    </div>
+
+                    <!-- Empty Courses Section -->
+                    <div id="emptyCoursesSection" class="hidden" style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffc107;">
+                        <h3 style="margin-top: 0; color: #856404;">📭 Courses with No Downloadable Content</h3>
+                        <div id="emptyCoursesList"></div>
+                    </div>
+
+                    <div id="coursesList"></div>
+                </div>
+            </div>
+
+            <!-- Download New Page -->
+            <div class="page hidden" id="downloadPage">
+                <div class="section">
+                    <h2>⬇️ Download New Lectures</h2>
+                    <p>This is the same as the main page. Use the navigation to go back to "Courses & Lectures" to
+                        download new videos.</p>
+                    <button class="btn btn-primary" onclick="showMainPage()">Go to Courses & Lectures</button>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div class="page hidden" id="settingsPage">
+                <div class="section">
+                    <h2>⚙️ Settings</h2>
+                    
+                    <!-- Cloud Storage Settings -->
+                    <div class="section" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                        <h3>☁️ Cloud Storage Configuration</h3>
+                        <p style="color: #666; margin-bottom: 20px;">
+                            Configure cloud storage sync for your downloads. Files will automatically sync when saved to the configured path.
+                        </p>
+                        
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label>
+                                <input type="checkbox" id="cloudEnabled" onchange="updateCloudSettings()">
+                                <span>Enable Cloud Storage Sync</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label for="cloudType">Cloud Storage Type:</label>
+                            <select id="cloudType" onchange="updateCloudSettings()" style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #ddd; border-radius: 8px;">
+                                <option value="onedrive">OneDrive</option>
+                                <option value="gdrive">Google Drive</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label for="cloudPath">Cloud Storage Path:</label>
+                            <input type="text" id="cloudPath" placeholder="e.g., C:\Users\YourName\OneDrive\LearnUs Downloads" 
+                                   style="width: 100%; padding: 10px; margin-top: 5px; border: 2px solid #ddd; border-radius: 8px; font-family: monospace;">
+                            <small style="color: #666; display: block; margin-top: 5px;">
+                                <strong>Required when cloud sync is enabled.</strong> Set the full path to a folder within your cloud storage directory.
+                                <br>• For OneDrive: Path should be inside your OneDrive folder
+                                <br>• For Google Drive: Path should be inside your "Google Drive" or "My Drive" folder
+                                <br>• The folder will be created if it doesn't exist
+                                <br>• All downloaded files will be saved to this location and sync automatically
+                            </small>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="saveCloudSettings()">💾 Save Cloud Settings</button>
+                        <button class="btn btn-info" onclick="testCloudConnection()" style="margin-left: 10px;">🔗 Test Connection</button>
+                        
+                        <div id="cloudStatus" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Downloaded Files Page -->
+            <div class="page hidden" id="videosPage">
+                <div class="section">
+                    <h2>📁 Downloaded Files</h2>
+                    <div id="videosMessage"></div>
+                    <div class="form-group" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <button class="btn btn-primary" onclick="loadVideos()">🔄 Refresh</button>
+                        <button class="btn btn-secondary" onclick="selectAllVideos()">Select All</button>
+                        <button class="btn btn-secondary" onclick="selectNoneVideos()">Deselect All</button>
+                        <button class="btn btn-secondary" onclick="selectUntranscribed()">Select Untranscribed</button>
+                        {% if is_local_mode %}
+                        <span style="border-left: 2px solid #ddd; height: 30px; margin: 0 10px;"></span>
+                        <button class="btn btn-success" onclick="batchTranscribe()">📝 Transcribe Selected</button>
+                        <button class="btn btn-success" onclick="batchAnalyze(false)"
+                            title="Full analysis with LLM (slower)">🔍 Analyze (Full)</button>
+                        <button class="btn btn-secondary" onclick="batchAnalyze(true)"
+                            title="Extract frames only, no LLM (fast)">⚡ Analyze (Fast)</button>
+                        {% endif %}
+                        <span style="border-left: 2px solid #ddd; height: 30px; margin: 0 10px;"></span>
+                        <button class="btn btn-warning" onclick="manualMigrate()" 
+                            title="Migrate old directory structure (e.g., '2023-2학기-금융공학의이해(1)') to new structure (year/semester/course/week)">
+                            📁 Migrate Directories
+                        </button>
+                    </div>
+                    <div style="font-size: 0.85em; color: #666; margin-top: 5px;">
+                        💡 <strong>Fast mode</strong> extracts key frames without LLM analysis (10x faster). Use
+                        <strong>Full mode</strong> for AI descriptions.
+                    </div>
+                    <div class="courses-container" id="videosContainer"></div>
+                </div>
+            </div>
+
+            <!-- Task Status Section (Global) -->
+            <div class="section hidden" id="taskSection">
+                <h2>📊 Task Progress</h2>
+                <div class="form-group" style="margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" id="refreshStatusBtn" onclick="refreshAndCheckStatus()">🔄 Refresh
+                        Status</button>
+                    <button class="btn btn-secondary" id="pauseBtn" onclick="pauseTask()" style="display: none;">⏸️
+                        Pause</button>
+                    <button class="btn btn-secondary" id="resumeBtn" onclick="resumeTask()" style="display: none;">▶️
+                        Resume</button>
+                    <button class="btn btn-secondary" id="stopBtn" onclick="stopTask()" style="display: none;">⏹️
+                        Stop</button>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+                </div>
+                <div class="task-log" id="taskLog"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTaskId = null;
+        let taskCheckInterval = null;
+        let activeTaskIds = {};  // Track multiple active tasks with their monitoring intervals
+        let isLoggedIn = false;
+
+        // Auto-login on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            await tryAutoLogin();
+        });
+
+        async function tryAutoLogin() {
+            const autoLoginSection = document.getElementById('autoLoginSection');
+            const loginSection = document.getElementById('loginSection');
+            const autoLoginMessage = document.getElementById('autoLoginMessage');
+
+            // Show auto-login section, hide manual login
+            autoLoginSection.classList.remove('hidden');
+            loginSection.classList.add('hidden');
+
+            try {
+                // Try to get browser cookies for LearnUs (privacy-focused: no credentials sent)
+                autoLoginMessage.innerHTML = '<div class="message message-info">🔐 Attempting auto-login...</div>';
+                
+                // Get cookies from LearnUs domain if possible
+                let cookies = null;
+                try {
+                    // This would typically require a browser extension or same-origin
+                    // For now, try to get cookies if we can access them
+                    cookies = await getBrowserCookies();
+                } catch (e) {
+                    console.log('Could not get browser cookies automatically');
+                }
+
+                // Build request payload - send cookies only if we have valid ones
+                // If no cookies, server will try .env credentials automatically
+                const payload = {};
+                if (cookies && typeof cookies === 'object' && Object.keys(cookies).length > 0) {
+                    payload.cookies = cookies;
+                    autoLoginMessage.innerHTML = '<div class="message message-info">🔐 Attempting login using browser session...</div>';
+                } else {
+                    // No cookies, server will use .env credentials
+                    autoLoginMessage.innerHTML = '<div class="message message-info">🔐 Attempting login using .env credentials...</div>';
+                }
+
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Login response:', data);
+
+                if (data.success) {
+                    // Login successful
+                    const loginMethod = payload.cookies ? 'browser session' : '.env credentials';
+                    autoLoginMessage.innerHTML = '<div class="message message-success">✅ Login successful! Using ' + loginMethod + '.</div>';
+                    isLoggedIn = true;
+
+                    // Hide auto-login section and show course section, then auto-fetch courses
+                    setTimeout(() => {
+                        autoLoginSection.classList.add('hidden');
+                        document.getElementById('semesterNavSection').classList.remove('hidden');
+                        document.getElementById('courseSection').classList.remove('hidden');
+                        // Discover available semesters and load current
+                        discoverAndLoadCourses();
+                    }, 300);  // Reduced timeout for faster transition
+                } else {
+                    // Auto-login failed, show manual login
+                    console.error('Auto-login failed:', data.message);
+                    autoLoginMessage.innerHTML = '<div class="message message-error">❌ Auto-login failed: ' + (data.message || 'Invalid credentials') + '</div>';
+                    setTimeout(() => {
+                        autoLoginSection.classList.add('hidden');
+                        loginSection.classList.remove('hidden');
+                    }, 2000);
+                }
+            } catch (error) {
+                // Error occurred, show manual login
+                console.error('Auto-login error:', error);
+                autoLoginMessage.innerHTML = '<div class="message message-error">❌ Error during auto-login: ' + error.message + '</div>';
+                setTimeout(() => {
+                    autoLoginSection.classList.add('hidden');
+                    loginSection.classList.remove('hidden');
+                }, 2000);
+            }
+        }
+
+        async function getBrowserCookies() {
+            // Get LearnUs cookies from browser
+            // Note: This requires same-origin access or browser extension
+            try {
+                // Try to get cookies from LearnUs domain
+                // Note: This requires the page to be served from the same origin or use a browser extension
+                // For now, we'll try to get cookies if possible
+                const cookies = {};
+                
+                // If we're on LearnUs domain, we can access cookies directly
+                if (window.location.hostname.includes('learnus.org')) {
+                    document.cookie.split(';').forEach(cookie => {
+                        const [name, value] = cookie.trim().split('=');
+                        if (name && value) {
+                            cookies[name] = decodeURIComponent(value);
+                        }
+                    });
+                    return cookies;
+                }
+                
+                // Otherwise, return empty (will fall back to username/password)
+                return null;
+            } catch (error) {
+                console.error('Error getting browser cookies:', error);
+                return null;
+            }
+        }
+
+        async function handleLogin() {
+            const messageDiv = document.getElementById('loginMessage');
+            
+            // Privacy-focused: ONLY use browser cookies, never send credentials
+            let cookies = null;
+            try {
+                // Try to get cookies from LearnUs if we can access them
+                // This would typically require a browser extension or same-origin access
+                cookies = await getBrowserCookies();
+            } catch (e) {
+                console.log('Could not get browser cookies');
+            }
+            
+            // ONLY use cookies - no username/password processing
+            if (!cookies || Object.keys(cookies).length === 0) {
+                showMessage(messageDiv, 'Please log in to LearnUs in your browser first, then refresh this page. Your credentials are never sent to the server.', 'error');
+                return;
+            }
+
+            try {
+                const payload = { cookies: cookies };
+                
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(messageDiv, data.message || 'Login successful!', 'success');
+                    isLoggedIn = true;
+                    setTimeout(() => {
+                        document.getElementById('loginSection').classList.add('hidden');
+                        document.getElementById('semesterNavSection').classList.remove('hidden');
+                        document.getElementById('courseSection').classList.remove('hidden');
+                        discoverAndLoadCourses();
+                    }, 1000);
+                } else {
+                    showMessage(messageDiv, data.message || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'Error: ' + error.message, 'error');
+            }
+        }
+
+        let coursesData = []; // Global store
+        let currentYear = null; // Track current view
+        let currentSemester = null;
+        let availableSemesters = []; // List of semesters with content
+
+        // Initial discovery and load
+        async function discoverAndLoadCourses(forceRefresh = false) {
+            const courseMessage = document.getElementById('courseMessage');
+            courseMessage.innerHTML = '<div class="message message-info">🔍 Discovering available semesters...</div>';
+
+            try {
+                // First, discover all available semesters
+                const url = forceRefresh ? '/api/courses?discover=true&force_refresh=true' : '/api/courses?discover=true';
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    availableSemesters = data.available_semesters || [];
+                    console.log('Available semesters:', availableSemesters);
+
+                    // Populate the navigation menu
+                    populateSemesterNav(availableSemesters);
+
+                    // Display all discovered courses
+                    coursesData = data.courses;
+                    displayCourses(data.courses);
+
+                    courseMessage.innerHTML = `<div class="message message-success">✅ Found ${data.total_courses} courses across ${availableSemesters.length} semesters.</div>`;
+                }
+            } catch (error) {
+                console.error('Discovery error:', error);
+                courseMessage.innerHTML = '<div class="message message-error">❌ Error discovering semesters: ' + error.message + '</div>';
+            }
+        }
+
+        // Populate semester navigation with dynamic buttons
+        function populateSemesterNav(semesters) {
+            const container = document.getElementById('semesterNavMenu');
+            if (!container) return;
+
+            // Find the quick buttons container
+            const quickButtonsHtml = semesters.map(sem => {
+                const semName = getSemesterName(sem.semester);
+                return `<button class="btn btn-primary" onclick="loadSemester('${sem.year}', '${sem.semester}')">${sem.year} - ${semName}</button>`;
+            }).join('');
+
+            // Update the nav menu HTML
+            container.innerHTML = `
+                <h3 style="margin-top: 0; font-size: 1.1em; color: #333;">Select Semester</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                    ${quickButtonsHtml || '<div style="color: #999;">No semesters found</div>'}
+                </div>
+                <div style="border-top: 1px solid #ccc; padding-top: 15px; margin-top: 15px;">
+                    <p style="margin: 0 0 10px 0; font-weight: 500; color: #666;">Or select custom year/semester:</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="number" id="customYear" placeholder="Year (e.g. 2022)"
+                            style="flex: 1; min-width: 150px; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
+                        <select id="customSemester"
+                            style="flex: 1; min-width: 150px; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
+                            <option value="">Current Semester</option>
+                            <option value="10">1st Semester (1학기)</option>
+                            <option value="20">2nd Semester (2학기)</option>
+                            <option value="11">Summer (여름학기)</option>
+                            <option value="21">Winter (겨울학기)</option>
+                        </select>
+                        <button class="btn btn-success" onclick="loadCustomSemester()">Go</button>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; text-align: center;">
+                    <button class="btn btn-secondary" onclick="loadCurrentSemester()">↻ Back to Current Semester</button>
+                </div>
+            `;
+        }
+
+        // Semester Navigation Functions
+        function toggleSemesterNav() {
+            const menu = document.getElementById('semesterNavMenu');
+            const icon = document.getElementById('navToggleIcon');
+            if (menu.style.display === 'none') {
+                menu.style.display = 'block';
+                icon.textContent = '▼';
+                // Load available semesters when menu is opened
+                loadAvailableSemesters();
+            } else {
+                menu.style.display = 'none';
+                icon.textContent = '▶';
+            }
+        }
+
+        function loadSemester(year, semester) {
+            currentYear = year;
+            currentSemester = semester;
+            refreshCourses(year, semester);
+            toggleSemesterNav(); // Collapse menu after selection
+        }
+
+        async function loadAvailableSemesters() {
+            try {
+                const response = await fetch('/api/available-semesters');
+                const data = await response.json();
+                
+                if (data.success && data.semesters) {
+                    const select = document.getElementById('availableSemesterSelect');
+                    if (!select) return;
+                    
+                    // Clear existing options except the first one
+                    select.innerHTML = '<option value="">-- Select from available semesters --</option>';
+                    
+                    // Add all available semesters
+                    data.semesters.forEach(sem => {
+                        const option = document.createElement('option');
+                        option.value = `${sem.year}-${sem.semester}`;
+                        option.textContent = `${sem.year} - ${sem.semester_name} (${sem.course_count} courses)`;
+                        option.dataset.year = sem.year;
+                        option.dataset.semester = sem.semester;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading available semesters:', error);
+            }
+        }
+
+        function loadFromAvailableSemester() {
+            const select = document.getElementById('availableSemesterSelect');
+            const value = select.value;
+            
+            if (!value) {
+                alert('Please select a semester');
+                return;
+            }
+            
+            const option = select.options[select.selectedIndex];
+            const year = option.dataset.year;
+            const semester = option.dataset.semester;
+            
+            if (year && semester) {
+                loadSemester(year, semester);
+            } else {
+                alert('Invalid semester selection');
+            }
+        }
+
+        function loadCustomSemester() {
+            const year = document.getElementById('customYear').value.trim();
+            const semester = document.getElementById('customSemester').value;
+            if (year && semester) {
+                loadSemester(year, semester);
+            } else {
+                alert('Please enter both year and semester');
+            }
+        }
+
+        function loadCurrentSemester() {
+            currentYear = null;
+            currentSemester = null;
+            refreshCourses();
+            toggleSemesterNav(); // Collapse menu after selection
+        }
+
+        async function refreshCourses(year = null, semester = null) {
+            const courseMessage = document.getElementById('courseMessage');
+            const coursesList = document.getElementById('coursesList');
+
+            // Use provided parameters or defaults
+            const queryYear = year || currentYear;
+            const querySemester = semester || currentSemester;
+
+            const semesterName = querySemester ? getSemesterName(querySemester) : 'Current Semester';
+            const displayName = queryYear ? `${queryYear} - ${semesterName}` : 'Current Semester';
+
+            courseMessage.innerHTML = `<div class="message message-info">⏳ Loading ${displayName}...</div>`;
+
+            try {
+                let url = '/api/courses';
+                const params = new URLSearchParams();
+                if (queryYear) params.append('year', queryYear);
+                if (querySemester) params.append('semester', querySemester);
+                if (params.toString()) url += '?' + params.toString();
+
+                console.log('Fetching courses from:', url);
+                const response = await fetch(url);
+                console.log('Response status:', response.status);
+
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (data.success) {
+                    coursesData = data.courses; // Store globally
+                    console.log('Number of courses received:', data.courses.length);
+                    displayCourses(data.courses);
+                    courseMessage.innerHTML = `<div class="message message-success">✅ Found ${data.total_courses} courses in ${displayName}.</div>`;
+                    document.getElementById('courseSection').classList.remove('hidden');
+                } else {
+                    coursesList.innerHTML = '';
+                    courseMessage.innerHTML = `<div class="message message-error">❌ ${data.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                courseMessage.innerHTML = `<div class="message message-error">❌ Connection error: ${error.message}</div>`;
+            }
+        }
+
+        function displayCourses(courses) {
+            const coursesList = document.getElementById('coursesList');
+            const emptyCoursesList = document.getElementById('emptyCoursesList');
+            
+            // Clear empty courses list
+            if (emptyCoursesList) {
+                emptyCoursesList.innerHTML = '';
+                document.getElementById('emptyCoursesSection').classList.add('hidden');
+            }
+            
+            coursesList.innerHTML = '';
+
+            if (courses.length === 0) {
+                coursesList.innerHTML = '<div class="message message-info">No courses found. Check the year/semester filter.</div>';
+                return;
+            }
+
+            // Group courses by year and semester
+            const grouped = {};
+            courses.forEach(course => {
+                const year = course.year || 'Unknown';
+                const semester = course.semester || 'Unknown';
+                const key = `${year}-${semester}`;
+
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        year: year,
+                        semester: semester,
+                        courses: []
+                    };
+                }
+                grouped[key].courses.push(course);
+            });
+
+            // Sort groups by year (descending) then semester (descending)
+            const sortedKeys = Object.keys(grouped).sort((a, b) => {
+                const [yearA, semA] = a.split('-');
+                const [yearB, semB] = b.split('-');
+                if (yearA !== yearB) return yearB.localeCompare(yearA);
+                return semB.localeCompare(semA);
+            });
+
+            // Render each year/semester group
+            sortedKeys.forEach((key, index) => {
+                const group = grouped[key];
+                const groupId = `group-${key.replace(/[^a-zA-Z0-9]/g, '_')}`;
+
+                // Year/Semester Header (Collapsible)
+                const groupHeader = document.createElement('div');
+                groupHeader.style.cssText = `
+                    background: linear-gradient(135deg, var(--yonsei-blue), #0056a3);
+                    color: white;
+                    padding: 15px 20px;
+                    margin: 20px 0 10px 0;
+                    border-radius: 8px;
+                    font-size: 1.2em;
+                    font-weight: 600;
+                    box-shadow: 0 2px 8px rgba(0,56,117,0.15);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    user-select: none;
+                `;
+                groupHeader.onclick = () => toggleSemesterGroup(groupId);
+                groupHeader.innerHTML = `
+                    <span id="toggle-${groupId}" style="display:inline-block; width:20px;">▼</span>
+                    📅 ${group.year} - ${getSemesterName(group.semester)} (${group.courses.length} courses)
+                `;
+                coursesList.appendChild(groupHeader);
+
+                // Container for courses in this group
+                const groupContainer = document.createElement('div');
+                groupContainer.id = groupId;
+                groupContainer.style.cssText = 'display: block;'; // Expanded by default
+                coursesList.appendChild(groupContainer);
+
+                // Render courses in this group
+                group.courses.forEach(course => {
+                    // Check if course has any downloadable content
+                    // Also check if course has any lectures at all (even if sections aren't loaded)
+                    const hasContent = course.sections && course.sections.some(s => 
+                        (s.videos && s.videos.length > 0) || 
+                        (s.materials && s.materials.length > 0) || 
+                        (s.assignments && s.assignments.length > 0)
+                    );
+                    
+                    // Also consider courses with lectures count > 0 as having content
+                    const hasLectures = course.lecture_count && course.lecture_count > 0;
+                    
+                    // Only mark as empty if loaded AND no content AND no lectures
+                    if (!hasContent && !hasLectures && course.loaded) {
+                        // Add to empty courses list
+                        const emptyList = document.getElementById('emptyCoursesList');
+                        if (emptyList) {
+                            const emptyItem = document.createElement('div');
+                            emptyItem.style.cssText = 'padding: 8px; margin: 5px 0; background: white; border-radius: 4px;';
+                            emptyItem.textContent = course.course_name;
+                            emptyList.appendChild(emptyItem);
+                            document.getElementById('emptyCoursesSection').classList.remove('hidden');
+                        }
+                        return; // Don't render this course
+                    }
+                    
+                    // Always show courses that haven't been loaded yet (user can load and check)
+                    if (!course.loaded) {
+                        // Continue to render - user can load content
+                    }
+
+                    const courseCard = document.createElement('div');
+                    courseCard.className = 'course-card';
+                    courseCard.id = `course-${course.course_id}`;
+                    courseCard.style.cssText = 'padding: 0; border: 1px solid #ddd; margin-bottom: 15px; border-radius: 8px; overflow: hidden;';
+
+                    // Header
+                    const header = document.createElement('div');
+                    header.style.cssText = `
+                        padding: 20px;
+                        background: #f8f9fa;
+                        border-bottom: 1px solid #eee;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        gap: 15px;
+                    `;
+
+                    const titleSection = document.createElement('div');
+                    titleSection.style.cssText = 'flex: 1; cursor: pointer;';
+                    titleSection.onclick = () => toggleCourseBody(course.course_id);
+                    titleSection.innerHTML = `
+                        <h3 style="margin:0; font-size: 1.1em; color:#333;">
+                            <span class="toggle-icon" id="toggle-${course.course_id}" style="display:inline-block; width:20px;">▶</span> 
+                            ${course.course_name}
+                        </h3>
+                        <div style="color: #666; font-size: 0.9em; margin-left:24px; margin-top:5px;">
+                            ${course.professor || 'Unknown Professor'} 
+                            ${course.loaded ? `| ${course.lecture_count} lectures` : ''}
+                        </div>
+                    `;
+
+                    const buttonSection = document.createElement('div');
+                    buttonSection.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap; align-items: center;';
+
+                    // Course selection controls
+                    const selectControls = document.createElement('div');
+                    selectControls.style.cssText = 'display: flex; gap: 5px; align-items: center; margin-right: 10px;';
+                    selectControls.innerHTML = `
+                        <button class="btn btn-secondary btn-sm" onclick="selectAllCourseItems('${course.course_id}')" 
+                                style="font-size: 0.75em; padding: 4px 8px;" title="Select all items in this course">
+                            ☑️ All
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="deselectAllCourseItems('${course.course_id}')" 
+                                style="font-size: 0.75em; padding: 4px 8px;" title="Deselect all items in this course">
+                            ☐ None
+                        </button>
+                        <input type="number" id="course-range-start-${course.course_id}" 
+                               placeholder="From" min="1" 
+                               style="width: 50px; padding: 3px; font-size: 0.7em; border: 1px solid #ccc; border-radius: 3px;">
+                        <span style="font-size: 0.7em;">-</span>
+                        <input type="number" id="course-range-end-${course.course_id}" 
+                               placeholder="To" min="1" 
+                               style="width: 50px; padding: 3px; font-size: 0.7em; border: 1px solid #ccc; border-radius: 3px;">
+                        <button class="btn btn-secondary btn-sm" onclick="selectRangeCourseItems('${course.course_id}')" 
+                                style="font-size: 0.75em; padding: 4px 8px;" title="Select items in range">
+                            🎯 Range
+                        </button>
+                    `;
+                    buttonSection.appendChild(selectControls);
+
+                    // Cloud sync button
+                    const cloudBtn = document.createElement('button');
+                    cloudBtn.className = 'btn btn-info';
+                    cloudBtn.style.cssText = 'padding: 8px 16px; font-size: 0.9em;';
+                    cloudBtn.innerHTML = '☁️ Cloud';
+                    cloudBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        showCloudSyncMenu(course.course_id);
+                    };
+                    buttonSection.appendChild(cloudBtn);
+
+                    // Refresh button
+                    const refreshBtn = document.createElement('button');
+                    refreshBtn.className = 'btn btn-primary';
+                    refreshBtn.style.cssText = 'padding: 8px 16px; font-size: 0.9em;';
+                    refreshBtn.innerHTML = course.loaded ? '🔄 Refresh' : '📥 Load Content';
+                    refreshBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        refreshSingleCourse(course.course_id);
+                    };
+                    buttonSection.appendChild(refreshBtn);
+
+                    header.appendChild(titleSection);
+                    header.appendChild(buttonSection);
+
+                    // Body (initially hidden)
+                    const body = document.createElement('div');
+                    body.className = 'course-body';
+                    body.id = `body-${course.course_id}`;
+                    body.style.cssText = 'display: none; padding: 20px; background: #fafbfc;';
+
+                    if (course.loaded && course.sections && course.sections.length > 0) {
+                        renderCourseSections(body, course);
+                    } else if (course.loaded) {
+                        body.innerHTML = '<div style="padding:20px; text-align:center; color:#999;">No content found.</div>';
+                    } else {
+                        body.innerHTML = '<div style="padding:20px; text-align:center; color:#999;">Click "Load Content" to view lectures and materials.</div>';
+                    }
+
+                    courseCard.appendChild(header);
+                    courseCard.appendChild(body);
+                    groupContainer.appendChild(courseCard);  // Append to group container
+                });
+            });
+        }
+
+        function getSemesterName(semester) {
+            const mapping = {
+                '10': '1st Semester (1학기)',
+                '20': '2nd Semester (2학기)',
+                '11': 'Summer (여름학기)',
+                '21': 'Winter (겨울학기)',
+                'all': 'All Semesters',
+                'Dashboard': 'Current Dashboard'
+            };
+            return mapping[semester] || semester;
+        }
+
+        function toggleSemesterGroup(groupId) {
+            const container = document.getElementById(groupId);
+            const toggle = document.getElementById(`toggle-${groupId}`);
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                toggle.textContent = '▼';
+            } else {
+                container.style.display = 'none';
+                toggle.textContent = '▶';
+            }
+        }
+
+        function toggleCourseBody(courseId) {
+            const body = document.getElementById(`body-${courseId}`);
+            const toggle = document.getElementById(`toggle-${courseId}`);
+            if (body.style.display === 'none') {
+                body.style.display = 'block';
+                toggle.textContent = '▼';
+            } else {
+                body.style.display = 'none';
+                toggle.textContent = '▶';
+            }
+        }
+
+        async function refreshSingleCourse(courseId) {
+            const refreshBtn = document.querySelector(`#course-${courseId} button`);
+            const originalText = refreshBtn.innerHTML;
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '⏳ Loading...';
+
+            try {
+                const response = await fetch('/api/course/refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ course_id: courseId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update the course in coursesData
+                    const courseIndex = coursesData.findIndex(c => c.course_id === courseId);
+                    if (courseIndex !== -1) {
+                        coursesData[courseIndex] = data;
+                    }
+
+                    // Update the UI
+                    const body = document.getElementById(`body-${courseId}`);
+                    body.innerHTML = '';
+                    renderCourseSections(body, data);
+
+                    // Update lecture count in header
+                    const header = document.querySelector(`#course-${courseId} h3 + div`);
+                    header.innerHTML = `${data.professor || 'Unknown Professor'} | ${data.lecture_count} lectures`;
+
+                    // Auto-expand after loading
+                    body.style.display = 'block';
+                    document.getElementById(`toggle-${courseId}`).textContent = '▼';
+
+                    refreshBtn.innerHTML = '🔄 Refresh';
+                } else {
+                    alert('Failed to load course: ' + data.message);
+                    refreshBtn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error loading course: ' + error.message);
+                refreshBtn.innerHTML = originalText;
+            } finally {
+                refreshBtn.disabled = false;
+            }
+        }
+
+        function renderCourseSections(container, course) {
+            if (!course.sections || course.sections.length === 0) {
+                container.innerHTML = '<div style="padding:20px; text-align:center;">No content found.</div>';
+                return;
+            }
+
+            course.sections.forEach(section => {
+                const hasVideos = section.videos && section.videos.length > 0;
+                const hasMaterials = section.materials && section.materials.length > 0;
+                const hasAssignments = section.assignments && section.assignments.length > 0;
+
+                if (!hasVideos && !hasMaterials && !hasAssignments) return;
+
+                const sectionDiv = document.createElement('div');
+                sectionDiv.style.cssText = 'margin-bottom: 20px; padding-left: 10px; border-left: 3px solid #007bff;';
+                sectionDiv.innerHTML = `<h4 style="margin-top:0; color:#444;">${section.title}</h4>`;
+
+                // Videos
+                if (hasVideos) {
+                    // Add selection controls for videos in this section
+                    const videoControls = document.createElement('div');
+                    videoControls.style.cssText = 'display: flex; gap: 8px; align-items: center; margin-bottom: 8px; padding: 5px 0; border-bottom: 1px solid #e0e0e0;';
+                    videoControls.innerHTML = `
+                        <button class="btn btn-secondary btn-sm" onclick="selectSectionVideos('${course.course_id}', '${section.title.replace(/'/g, "\\'")}')" 
+                                style="font-size: 0.75em; padding: 3px 8px;">
+                            ☑️ Select All (${section.videos.length})
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="deselectSectionVideos('${course.course_id}', '${section.title.replace(/'/g, "\\'")}')" 
+                                style="font-size: 0.75em; padding: 3px 8px;">
+                            ☐ Deselect
+                        </button>
+                        <input type="number" id="range-start-${course.course_id}-${section.title.replace(/[^a-zA-Z0-9]/g, '_')}" 
+                               placeholder="From" min="1" max="${section.videos.length}" 
+                               style="width: 60px; padding: 3px; font-size: 0.75em; border: 1px solid #ccc; border-radius: 3px;">
+                        <span style="font-size: 0.75em;">to</span>
+                        <input type="number" id="range-end-${course.course_id}-${section.title.replace(/[^a-zA-Z0-9]/g, '_')}" 
+                               placeholder="To" min="1" max="${section.videos.length}" 
+                               style="width: 60px; padding: 3px; font-size: 0.75em; border: 1px solid #ccc; border-radius: 3px;">
+                        <button class="btn btn-secondary btn-sm" onclick="selectRangeVideos('${course.course_id}', '${section.title.replace(/'/g, "\\'")}')" 
+                                style="font-size: 0.75em; padding: 3px 8px;">
+                            🎯 Select Range
+                        </button>
+                    `;
+                    sectionDiv.appendChild(videoControls);
+                    
+                    const videoList = document.createElement('div');
+                    section.videos.forEach((v, index) => {
+                        const item = document.createElement('div');
+                        item.id = `item-video-${v.id}`;
+                        item.style.cssText = 'display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0;';
+                        item.innerHTML = `
+                            <label style="display:flex; align-items:center; flex:1; cursor:pointer;">
+                                <input type="checkbox" class="item-select video-select" 
+                                       data-id="${v.id}"
+                                       data-course-id="${course.course_id}"
+                                       data-week="${section.title}"
+                                       data-type="video" 
+                                       data-name="${v.title}"
+                                       data-index="${index + 1}"
+                                       checked
+                                       style="margin-right:10px; transform: scale(1.2);">
+                                <div style="flex:1;">
+                                    <div style="font-weight:500;">🎥 ${v.title}</div>
+                                    <div style="font-size:0.8em; color:#888;">${v.week} | ${v.status}</div>
+                                    <div id="progress-video-${v.id}" class="item-progress hidden" style="margin-top: 5px;">
+                                        <div style="background: #e9ecef; border-radius: 4px; height: 20px; position: relative; overflow: hidden;">
+                                            <div class="progress-fill" style="background: #007bff; height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7em;">
+                                                0%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            <button class="btn btn-sm btn-primary" onclick="downloadSingleItem('video', '${v.id}', '${course.course_id}', '${section.title}', '${v.title.replace(/'/g, "\\'")}')" style="margin-left: 10px;">
+                                ⬇️ Download
+                            </button>
+                        `;
+                        videoList.appendChild(item);
+                    });
+                    sectionDiv.appendChild(videoList);
+                }
+
+                // Materials
+                if (hasMaterials) {
+                    section.materials.forEach(m => {
+                        const item = document.createElement('div');
+                        const itemId = `item-material-${m.url.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                        item.id = itemId;
+                        item.style.cssText = 'display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0;';
+                        item.innerHTML = `
+                            <label style="display:flex; align-items:center; flex:1; cursor:pointer;">
+                                <input type="checkbox" class="item-select file-select" 
+                                       data-url="${m.url}" 
+                                       data-name="${m.name}"
+                                       data-course-id="${course.course_id}"
+                                       data-week="${section.title}"
+                                       data-type="material"
+                                       checked
+                                       style="margin-right:10px; transform: scale(1.2);">
+                                <div style="flex:1;">
+                                    <div style="font-weight:500; color:#0d6efd;">📄 ${m.name}</div>
+                                    <div id="progress-material-${itemId}" class="item-progress hidden" style="margin-top: 5px;">
+                                        <div style="background: #e9ecef; border-radius: 4px; height: 20px; position: relative; overflow: hidden;">
+                                            <div class="progress-fill" style="background: #0d6efd; height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7em;">
+                                                0%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            <button class="btn btn-sm btn-primary" onclick="downloadSingleItem('material', '${itemId}', '${course.course_id}', '${section.title}', '${m.name.replace(/'/g, "\\'")}', '${m.url}')" style="margin-left: 10px;">
+                                ⬇️ Download
+                            </button>
+                        `;
+                        sectionDiv.appendChild(item);
+                    });
+                }
+
+                // Assignments
+                if (hasAssignments) {
+                    section.assignments.forEach(a => {
+                        const item = document.createElement('div');
+                        const itemId = `item-assignment-${a.url.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                        item.id = itemId;
+                        item.style.cssText = 'display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0;';
+                        item.innerHTML = `
+                            <label style="display:flex; align-items:center; flex:1; cursor:pointer;">
+                                <input type="checkbox" class="item-select assign-select" 
+                                       data-url="${a.url}" 
+                                       data-name="${a.name}"
+                                       data-course-id="${course.course_id}"
+                                       data-week="${section.title}"
+                                       data-type="assignment"
+                                       checked
+                                       style="margin-right:10px; transform: scale(1.2);">
+                                <div style="flex:1;">
+                                    <div style="font-weight:500; color:#dc3545;">📝 ${a.name}</div>
+                                    <div id="progress-assignment-${itemId}" class="item-progress hidden" style="margin-top: 5px;">
+                                        <div style="background: #e9ecef; border-radius: 4px; height: 20px; position: relative; overflow: hidden;">
+                                            <div class="progress-fill" style="background: #dc3545; height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.7em;">
+                                                0%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            <button class="btn btn-sm btn-primary" onclick="downloadSingleItem('assignment', '${itemId}', '${course.course_id}', '${section.title}', '${a.name.replace(/'/g, "\\'")}', '${a.url}')" style="margin-left: 10px;">
+                                ⬇️ Download
+                            </button>
+                        `;
+                        sectionDiv.appendChild(item);
+                    });
+                }
+
+                container.appendChild(sectionDiv);
+            });
+        }
+
+
+        // Unified Download Function
+        async function startUnifiedDownload() {
+            const courseMessage = document.getElementById('courseMessage');
+
+            // Gather selected items
+            const selectedVideos = Array.from(document.querySelectorAll('.video-select:checked')).map(cb => ({
+                id: cb.dataset.id,
+                courseId: cb.dataset.courseId
+            }));
+
+            const selectedFiles = Array.from(document.querySelectorAll('.file-select:checked, .assign-select:checked')).map(cb => ({
+                url: cb.dataset.url,
+                name: cb.dataset.name,
+                type: cb.dataset.type,
+                courseId: cb.dataset.courseId
+            }));
+
+            if (selectedVideos.length === 0 && selectedFiles.length === 0) {
+                alert('Please select at least one item to download.');
+                return;
+            }
+
+            courseMessage.innerHTML = '<div class="message message-info">🚀 Starting download...</div>';
+
+            // 1. Trigger Video Download
+            if (selectedVideos.length > 0) {
+                const transcribeIds = document.getElementById('transcribeCheckbox').checked ? selectedVideos.map(v => v.id) : [];
+                const summarizeIds = document.getElementById('summarizeCheckbox').checked ? selectedVideos.map(v => v.id) : [];
+                const analyzeVideo = document.getElementById('analyzeVideoCheckbox').checked;
+
+                try {
+                    const response = await fetch('/api/download', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            lecture_ids: selectedVideos.map(v => v.id),
+                            transcribe_ids: transcribeIds,
+                            summarize_ids: summarizeIds,
+                            analyze_video: analyzeVideo,
+                            use_multiprocessing: document.getElementById('multiprocessingCheckbox').checked
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        startTaskMonitoring(data.task_id, 'Video Download');
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            // 2. Trigger Material Download
+            const coursesWithFiles = [...new Set(selectedFiles.map(f => f.courseId))];
+
+            for (const cid of coursesWithFiles) {
+                try {
+                    const response = await fetch('/api/download-materials', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ course_id: cid })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        startTaskMonitoring(data.task_id, `Materials (${cid})`);
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+
+
+
+        async function downloadMaterials(courseId) {
+            if (!confirm('Download all lecture materials and assignments for this course? This may take a while.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/download-materials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        course_id: courseId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentTaskId = data.task_id;
+                    document.getElementById('taskSection').classList.remove('hidden');
+                    startTaskMonitoring();
+                    alert('Started downloading materials! Check progress below.');
+                } else {
+                    alert('Failed to start download: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // New functions for enhanced functionality
+        async function downloadSingleItem(type, itemId, courseId, week, name, url = null) {
+            const payload = {
+                type: type,
+                id: itemId,
+                course_id: courseId,
+                week: week,
+                name: name
+            };
+            
+            if (url) {
+                payload.url = url;
+            }
+
+            try {
+                const response = await fetch('/api/download-single', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Show progress for this item
+                    const progressDiv = document.getElementById(`progress-${type}-${itemId}`);
+                    if (progressDiv) {
+                        progressDiv.classList.remove('hidden');
+                        startItemProgressMonitoring(data.task_id, itemId, type);
+                    }
+                } else {
+                    alert('Failed to start download: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function startItemProgressMonitoring(taskId, itemId, type) {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/task/${taskId}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const status = data.status;
+                        
+                        // Update item progress
+                        const itemStatus = status.items && status.items[itemId];
+                        if (itemStatus) {
+                            const progressFill = document.querySelector(`#progress-${type}-${itemId} .progress-fill`);
+                            if (progressFill) {
+                                progressFill.style.width = itemStatus.progress + '%';
+                                progressFill.textContent = itemStatus.progress + '%';
+                            }
+                        }
+                        
+                        // Update overall progress if this is the main task
+                        if (taskId === currentTaskId) {
+                            updateOverallProgress(status);
+                        }
+                        
+                        // Stop monitoring if completed
+                        if (status.status === 'completed' || status.status === 'error' || status.status === 'cancelled') {
+                            clearInterval(interval);
+                            delete activeTaskIds[taskId];
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error monitoring item progress:', error);
+                    clearInterval(interval);
+                    delete activeTaskIds[taskId];
+                }
+            }, 2000);
+            
+            activeTaskIds[taskId] = interval;
+        }
+
+        function updateOverallProgress(status) {
+            const progressFill = document.getElementById('overallProgressFill');
+            const progressText = document.getElementById('overallProgressText');
+            const progressSection = document.getElementById('overallProgressSection');
+            
+            if (progressFill && progressText && progressSection) {
+                progressFill.style.width = status.progress + '%';
+                progressFill.textContent = status.progress + '%';
+                progressText.textContent = `Completed: ${status.completed || 0} | Failed: ${status.failed || 0} | Total: ${status.total || 0}`;
+                progressSection.classList.remove('hidden');
+            }
+        }
+
+        async function handleDownloadNewOnlyChange() {
+            const checkbox = document.getElementById('downloadNewOnlyCheckbox');
+            if (!checkbox.checked) {
+                // Re-enable all items
+                document.querySelectorAll('.item-select').forEach(cb => {
+                    cb.disabled = false;
+                    cb.parentElement.style.opacity = '1';
+                });
+                return;
+            }
+
+            // Gather all file paths that would be downloaded
+            const filePaths = [];
+            const items = [];
+            
+            document.querySelectorAll('.item-select').forEach(cb => {
+                const type = cb.dataset.type;
+                const courseId = cb.dataset.courseId;
+                const week = cb.dataset.week || 'General';
+                const name = cb.dataset.name;
+                
+                // Build expected file path based on new structure: year/semester/course/week/filename
+                // We'll need course info to build this properly
+                const item = {
+                    checkbox: cb,
+                    type: type,
+                    courseId: courseId,
+                    week: week,
+                    name: name,
+                    path: null  // Will be set after we get course info
+                };
+                items.push(item);
+            });
+
+            // For now, mark as checking
+            items.forEach(item => {
+                item.checkbox.disabled = true;
+                item.checkbox.parentElement.style.opacity = '0.5';
+            });
+
+            // Note: Full implementation would need course year/semester info
+            // This is a simplified version - you may need to enhance based on available data
+            alert('File checking feature is being set up. For now, all items are enabled.');
+            
+            items.forEach(item => {
+                item.checkbox.disabled = false;
+                item.checkbox.parentElement.style.opacity = '1';
+            });
+        }
+
+        async function pauseCurrentTask() {
+            if (!currentTaskId) return;
+            try {
+                const response = await fetch(`/api/task/${currentTaskId}/pause`, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('pauseBtn').style.display = 'none';
+                    document.getElementById('resumeBtn').style.display = 'inline-block';
+                }
+            } catch (error) {
+                alert('Error pausing task: ' + error.message);
+            }
+        }
+
+        async function resumeCurrentTask() {
+            if (!currentTaskId) return;
+            try {
+                const response = await fetch(`/api/task/${currentTaskId}/resume`, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('pauseBtn').style.display = 'inline-block';
+                    document.getElementById('resumeBtn').style.display = 'none';
+                }
+            } catch (error) {
+                alert('Error resuming task: ' + error.message);
+            }
+        }
+
+        async function cancelCurrentTask() {
+            if (!currentTaskId) return;
+            if (!confirm('Are you sure you want to cancel this download?')) return;
+            
+            try {
+                const response = await fetch(`/api/task/${currentTaskId}/cancel`, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('overallProgressSection').classList.add('hidden');
+                    currentTaskId = null;
+                }
+            } catch (error) {
+                alert('Error cancelling task: ' + error.message);
+            }
+        }
+
+        async function showCloudSyncMenu(courseId) {
+            // Show cloud storage information using global settings
+            try {
+                const response = await fetch('/api/cloud-link', { method: 'GET' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const link = data.cloud_link;
+                    
+                    const message = `${link.type === 'onedrive' ? 'OneDrive' : 'Google Drive'} Cloud Storage\n\n` +
+                        `Configured Path: ${link.path}\n\n` +
+                        link.instructions.replace(/\n/g, '\n') +
+                        `\n\n💡 To change settings, go to Settings page (⚙️ Settings button in navigation).`;
+                    
+                    alert(message);
+                } else {
+                    alert('Cloud storage not configured.\n\n' + 
+                          'To enable cloud sync:\n' +
+                          '1. Go to Settings page (⚙️ Settings button)\n' +
+                          '2. Enable "Cloud Storage Sync"\n' +
+                          '3. Select your cloud storage type\n' +
+                          '4. Enter the full path to your cloud storage folder\n' +
+                          '5. Click "Save Cloud Settings"\n\n' + 
+                          (data.message || ''));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function startTaskMonitoring(taskId = null, label = '') {
+            if (taskId) {
+                currentTaskId = taskId;
+            }
+            
+            if (!currentTaskId) return;
+            
+            if (taskCheckInterval) {
+                clearInterval(taskCheckInterval);
+            }
+
+            // Show control buttons and progress section
+            document.getElementById('overallProgressSection').classList.remove('hidden');
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+            document.getElementById('resumeBtn').style.display = 'none';
+
+            taskCheckInterval = setInterval(async () => {
+                if (!currentTaskId) return;
+
+                try {
+                    const response = await fetch(`/api/task/${currentTaskId}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const status = data.status;
+                        updateOverallProgress(status);
+
+                        // Update button visibility based on status
+                        if (status.status === 'running') {
+                            document.getElementById('pauseBtn').style.display = 'inline-block';
+                            document.getElementById('resumeBtn').style.display = 'none';
+                            document.getElementById('cancelBtn').style.display = 'inline-block';
+                        } else if (status.status === 'paused') {
+                            document.getElementById('pauseBtn').style.display = 'none';
+                            document.getElementById('resumeBtn').style.display = 'inline-block';
+                            document.getElementById('cancelBtn').style.display = 'inline-block';
+                        } else {
+                            // Completed, error, or stopped
+                            document.getElementById('pauseBtn').style.display = 'none';
+                            document.getElementById('resumeBtn').style.display = 'none';
+                            document.getElementById('cancelBtn').style.display = 'none';
+                        }
+
+                        if (status.status === 'completed' || status.status === 'error' || status.status === 'stopped') {
+                            clearInterval(taskCheckInterval);
+                            taskCheckInterval = null;
+                            // Auto-refresh video list when task completes
+                            loadVideos();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking task status:', error);
+                }
+            }, 1000);
+        }
+
+        async function refreshAndCheckStatus() {
+            // Refresh both the task status and video list
+            const messageDiv = document.getElementById('videosMessage');
+            messageDiv.innerHTML = '<div class="message message-info">🔄 Refreshing...</div>';
+
+            // Refresh video list to check transcription status
+            await loadVideos();
+
+            // Also check current task if any
+            if (currentTaskId) {
+                try {
+                    const response = await fetch(`/api/task/${currentTaskId}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        const status = data.status;
+                        document.getElementById('progressFill').style.width = status.progress + '%';
+                        document.getElementById('progressFill').textContent = status.progress + '%';
+
+                        const logDiv = document.getElementById('taskLog');
+                        logDiv.innerHTML = status.messages.map(msg =>
+                            `<div class="task-log-item">${msg}</div>`
+                        ).join('');
+                        logDiv.scrollTop = logDiv.scrollHeight;
+                    }
+                } catch (error) {
+                    console.error('Error refreshing task status:', error);
+                }
+            }
+
+            messageDiv.innerHTML = '<div class="message message-success">✅ Refreshed! Check transcription status below.</div>';
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 3000);
+        }
+
+        async function pauseTask() {
+            if (!currentTaskId) return;
+
+            try {
+                const response = await fetch(`/api/task/${currentTaskId}/pause`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('pauseBtn').style.display = 'none';
+                    document.getElementById('resumeBtn').style.display = 'inline-block';
+                } else {
+                    alert('Failed to pause: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function resumeTask() {
+            if (!currentTaskId) return;
+
+            try {
+                const response = await fetch(`/api/task/${currentTaskId}/resume`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('pauseBtn').style.display = 'inline-block';
+                    document.getElementById('resumeBtn').style.display = 'none';
+                } else {
+                    alert('Failed to resume: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function stopTask() {
+            if (!currentTaskId) return;
+
+            if (!confirm('Are you sure you want to stop the download? Current progress will be lost.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/task/${currentTaskId}/stop`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('pauseBtn').style.display = 'none';
+                    document.getElementById('resumeBtn').style.display = 'none';
+                    document.getElementById('stopBtn').style.display = 'none';
+
+                    if (taskCheckInterval) {
+                        clearInterval(taskCheckInterval);
+                        taskCheckInterval = null;
+                    }
+                } else {
+                    alert('Failed to stop: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function monitorProgress(taskId) {
+            currentTaskId = taskId;
+            startTaskMonitoring();
+        }
+
+        function showMessage(div, message, type) {
+            div.innerHTML = `<div class="message message-${type}">${message}</div>`;
+            setTimeout(() => {
+                div.innerHTML = '';
+            }, 5000);
+        }
+
+        function showMainPage() {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+            // Show main page
+            document.getElementById('mainPage').classList.remove('hidden');
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('navMain').classList.add('active');
+        }
+
+        function showDownloadPage() {
+            // Download New is the same as main page, just show main page directly
+            showMainPage();
+            // Force refresh courses
+            if (isLoggedIn) {
+                discoverAndLoadCourses(true);
+            }
+        }
+
+        function showVideosPage() {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+            // Show videos page
+            document.getElementById('videosPage').classList.remove('hidden');
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('navVideos').classList.add('active');
+            // Load videos
+            loadVideos();
+        }
+
+        function showSettingsPage() {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById('settingsPage').classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('navSettings').classList.add('active');
+            loadCloudSettings();
+            {% if not is_local_mode %}
+            loadLLMSettings();
+            {% endif %}
+        }
+
+        async function loadCloudSettings() {
+            try {
+                const response = await fetch('/api/cloud-settings');
+                const data = await response.json();
+                
+                if (data.success && data.settings) {
+                    document.getElementById('cloudEnabled').checked = data.settings.enabled || false;
+                    document.getElementById('cloudType').value = data.settings.type || 'onedrive';
+                    document.getElementById('cloudPath').value = data.settings.path || '';
+                }
+            } catch (error) {
+                console.error('Error loading cloud settings:', error);
+            }
+        }
+
+        async function saveCloudSettings() {
+            const enabled = document.getElementById('cloudEnabled').checked;
+            const type = document.getElementById('cloudType').value;
+            const path = document.getElementById('cloudPath').value.trim();
+            
+            // Validate: if enabled, path is required
+            if (enabled && !path) {
+                alert('Please enter a cloud storage path when cloud sync is enabled.\n\nExample: C:\\Users\\YourName\\OneDrive\\LearnUs Downloads');
+                document.getElementById('cloudPath').focus();
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/cloud-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        enabled: enabled,
+                        type: type,
+                        path: path || null
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const statusDiv = document.getElementById('cloudStatus');
+                    statusDiv.innerHTML = '<div class="message message-success">✅ Cloud storage settings saved!</div>';
+                    setTimeout(() => statusDiv.innerHTML = '', 3000);
+                } else {
+                    alert('Error: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function testCloudConnection() {
+            const enabled = document.getElementById('cloudEnabled').checked;
+            const path = document.getElementById('cloudPath').value.trim();
+            
+            if (!enabled) {
+                alert('Please enable cloud storage sync first.');
+                return;
+            }
+            
+            if (!path) {
+                alert('Please enter a cloud storage path first.');
+                document.getElementById('cloudPath').focus();
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/cloud-link', { method: 'GET' });
+                const data = await response.json();
+                
+                const statusDiv = document.getElementById('cloudStatus');
+                if (data.success) {
+                    const link = data.cloud_link;
+                    statusDiv.innerHTML = `
+                        <div class="message message-info">
+                            ℹ️ ${link.type === 'onedrive' ? 'OneDrive' : 'Google Drive'} Configuration<br>
+                            <strong>Path:</strong> ${link.path}<br>
+                            <strong>Status:</strong> ${link.configured ? '✅ Configured' : '⚠️ Using default path'}<br>
+                            <div style="white-space: pre-line; margin-top: 10px; font-size: 0.9em;">${link.instructions}</div>
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `<div class="message message-error">❌ ${data.message}</div>`;
+                }
+            } catch (error) {
+                const statusDiv = document.getElementById('cloudStatus');
+                statusDiv.innerHTML = `<div class="message message-error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function updateCloudSettings() {
+            // Enable/disable path input based on checkbox
+            const enabled = document.getElementById('cloudEnabled').checked;
+            const pathInput = document.getElementById('cloudPath');
+            pathInput.disabled = !enabled;
+            
+            if (!enabled) {
+                pathInput.placeholder = 'Enable cloud sync to configure path';
+            } else {
+                const type = document.getElementById('cloudType').value;
+                if (type === 'onedrive') {
+                    pathInput.placeholder = 'e.g., C:\\Users\\YourName\\OneDrive\\LearnUs Downloads';
+                } else {
+                    pathInput.placeholder = 'e.g., C:\\Users\\YourName\\Google Drive\\LearnUs Downloads';
+                }
+            }
+        }
+
+        // LLM Settings Functions
+        function updateLLMSettings() {
+            const provider = document.getElementById('llmProvider').value;
+            document.querySelectorAll('.llm-provider-settings').forEach(div => {
+                div.style.display = 'none';
+            });
+            document.getElementById(`${provider}Settings`).style.display = 'block';
+        }
+
+        async function loadLLMSettings() {
+            try {
+                const response = await fetch('/api/llm-settings');
+                const data = await response.json();
+                if (data.success) {
+                    const settings = data.settings;
+                    document.getElementById('llmProvider').value = settings.provider || 'openai';
+                    document.getElementById('openaiModel').value = settings.openai_model || 'gpt-4';
+                    document.getElementById('googleModel').value = settings.google_model || 'gemini-pro';
+                    document.getElementById('ollamaUrl').value = settings.ollama_url || 'http://localhost:11434';
+                    document.getElementById('ollamaModel').value = settings.ollama_model || 'llama2';
+                    updateLLMSettings();
+                }
+            } catch (error) {
+                console.error('Error loading LLM settings:', error);
+            }
+        }
+
+        async function saveLLMSettings() {
+            const provider = document.getElementById('llmProvider').value;
+            const settings = {
+                provider: provider,
+                openai_api_key: document.getElementById('openaiApiKey').value.trim(),
+                openai_model: document.getElementById('openaiModel').value,
+                google_api_key: document.getElementById('googleApiKey').value.trim(),
+                google_model: document.getElementById('googleModel').value,
+                ollama_url: document.getElementById('ollamaUrl').value.trim(),
+                ollama_model: document.getElementById('ollamaModel').value.trim(),
+            };
+            
+            try {
+                const response = await fetch('/api/llm-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const statusDiv = document.getElementById('llmStatus');
+                    statusDiv.innerHTML = '<div class="message message-success">✅ LLM settings saved!</div>';
+                    setTimeout(() => statusDiv.innerHTML = '', 3000);
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to save settings'));
+                }
+            } catch (error) {
+                alert('Error saving settings: ' + error.message);
+            }
+        }
+
+        async function testLLMConnection() {
+            const provider = document.getElementById('llmProvider').value;
+            const statusDiv = document.getElementById('llmStatus');
+            statusDiv.innerHTML = '<div class="message message-info">🔄 Testing connection...</div>';
+            
+            try {
+                // This is a placeholder - actual test would call the LLM API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                statusDiv.innerHTML = `
+                    <div class="message message-info">
+                        ℹ️ Connection test placeholder<br>
+                        Provider: ${provider}<br>
+                        Actual API testing will be implemented in future updates.
+                    </div>
+                `;
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="message message-error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        // Keep old showVideos function for compatibility
+        function showVideos() {
+            showVideosPage();
+        }
+
+        async function loadVideos() {
+            const messageDiv = document.getElementById('videosMessage');
+            const container = document.getElementById('videosContainer');
+
+            messageDiv.innerHTML = '<div class="message message-info">Loading downloaded files...</div>';
+            container.innerHTML = '';
+
+            try {
+                // Use new endpoint that returns structured course -> section -> files
+                const response = await fetch('/api/downloads');
+                const data = await response.json();
+
+                if (data.success) {
+                    messageDiv.innerHTML = `<div class="message message-success">✅ Found content for ${data.courses.length} courses</div>`;
+                    displayDownloads(data.courses);
+                } else {
+                    messageDiv.innerHTML = `<div class="message message-error">❌ ${data.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                messageDiv.innerHTML = `<div class="message message-error">❌ Error loading downloads: ${error.message}</div>`;
+            }
+        }
+
+        async function manualMigrate() {
+            const messageDiv = document.getElementById('videosMessage');
+            
+            if (!confirm('This will migrate old directory structure (e.g., "2023-2학기-금융공학의이해(1)") to the new structure (year/semester/course/week). Continue?')) {
+                return;
+            }
+
+            messageDiv.innerHTML = '<div class="message message-info">🔄 Starting migration... This may take a while.</div>';
+
+            try {
+                const response = await fetch('/api/migrate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    messageDiv.innerHTML = '<div class="message message-success">✅ Migration completed! Refreshing file list...</div>';
+                    // Reload the file list after migration
+                    setTimeout(() => {
+                        loadVideos();
+                    }, 2000);
+                } else {
+                    messageDiv.innerHTML = `<div class="message message-error">❌ Migration failed: ${data.message}</div>`;
+                }
+            } catch (error) {
+                console.error('Migration error:', error);
+                messageDiv.innerHTML = `<div class="message message-error">❌ Error during migration: ${error.message}</div>`;
+            }
+        }
+
+        function displayDownloads(courses) {
+            const container = document.getElementById('videosContainer');
+            container.innerHTML = '';
+
+            // Populate global allVideos for compatibility with batch operations
+            if (typeof allVideos !== 'undefined') {
+                allVideos = [];
+                courses.forEach(c => {
+                    if (c.sections) {
+                        c.sections.forEach(s => {
+                            if (s.files) {
+                                s.files.forEach(f => {
+                                    if (f.type === 'video') {
+                                        f.course_name = c.course_name;
+                                        allVideos.push(f);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            if (courses.length === 0) {
+                container.innerHTML = '<div class="message message-info">No files found. Go to "Courses" to download content.</div>';
+                return;
+            }
+
+            courses.forEach(course => {
+                const courseCard = document.createElement('div');
+                courseCard.className = 'course-card';
+                courseCard.style.padding = '0';
+                courseCard.style.border = '1px solid #ddd';
+                courseCard.style.marginBottom = '20px';
+
+                // Header
+                const header = document.createElement('div');
+                header.className = 'course-header';
+                header.style.padding = '20px';
+                header.style.background = '#f8f9fa';
+                header.style.borderBottom = '1px solid #eee';
+                header.style.cursor = 'pointer';
+                header.style.display = 'flex';
+                header.style.justifyContent = 'space-between';
+                header.style.alignItems = 'center';
+
+                header.onclick = (e) => {
+                    // Prevent toggling if checking a checkbox in header
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+
+                    const body = courseCard.querySelector('.course-body');
+                    const toggle = courseCard.querySelector('.toggle-icon');
+                    if (body.style.display === 'none') {
+                        body.style.display = 'block';
+                        toggle.textContent = '▼';
+                    } else {
+                        body.style.display = 'none';
+                        toggle.textContent = '▶';
+                    }
+                };
+
+                header.innerHTML = `
+                    <div>
+                        <h3 style="margin:0; font-size: 1.2em; color:#333;">
+                            <span class="toggle-icon" style="display:inline-block; width:20px;">▶</span> 
+                            ${course.course_name}
+                        </h3>
+                        <div style="color: #666; font-size: 0.9em; margin-left:24px; margin-top:5px;">
+                             ${course.year || 'Unknown'} - ${course.semester || 'Unknown'} | ${course.sections.length} Sections
+                        </div>
+                    </div>
+                `;
+
+                // Body
+                const body = document.createElement('div');
+                body.className = 'course-body';
+                body.style.display = 'none';
+                body.style.padding = '20px';
+
+                // Sections
+                course.sections.forEach(section => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'section-block';
+                    sectionDiv.style.marginBottom = '15px';
+
+                    const sectionTitle = document.createElement('h4');
+                    sectionTitle.className = 'section-title';
+                    sectionTitle.textContent = section.title;
+                    sectionDiv.appendChild(sectionTitle);
+
+                    section.files.forEach(file => {
+                        const row = document.createElement('div');
+                        row.className = 'item-row';
+
+                        let actionButtons = '';
+                        let icon = '📄';
+                        let color = '#333';
+                        let checkboxClass = 'item-select';
+                        let badges = '';
+
+                        if (file.type === 'video') {
+                            icon = '🎥';
+                            color = '#003875'; // Yonsei blue
+                            checkboxClass += ' video-checkbox';
+
+                            // Badges
+                            if (file.has_transcript) badges += '<span title="Transcribed">📝</span> ';
+                            if (file.has_analysis) badges += '<span title="Analyzed">🔍</span> ';
+
+                            // Extract video path for play button
+                            const encodedPath = encodeURIComponent(file.path);
+                            // Escape path for data attribute
+                            const escapedPath = file.path.replace(/'/g, "\\'");
+                            const courseId = course.dir_name; // Use dir_name as ID
+
+                            actionButtons = `
+                                <button class="btn btn-sm" style="padding:4px 8px; font-size:0.8em; margin-left:10px; background:#e9ecef; color:#333;" 
+                                        onclick="window.open('/api/files/${file.path}', '_blank')">▶ Play</button>
+                            `;
+                        } else {
+                            // File download button
+                            actionButtons = `
+                                <a href="/api/files/${file.path}" target="_blank" class="btn btn-sm" 
+                                   style="padding:4px 8px; font-size:0.8em; margin-left:10px; text-decoration:none; background:#e9ecef; color:#333;">⬇ Download</a>
+                            `;
+                        }
+
+                        const escapedPath = file.path.replace(/'/g, "\\'");
+
+                        row.innerHTML = `
+                            <label style="display:flex; align-items:center; flex:1; cursor:pointer;">
+                                <input type="checkbox" class="${checkboxClass}" 
+                                       value="${file.path}"
+                                       data-type="${file.type}"
+                                       data-path="${escapedPath}"
+                                       data-transcribed="${file.has_transcript || false}"
+                                       data-analyzed="${file.has_analysis || false}">
+                                <div style="margin-left:10px;">
+                                    <div style="font-weight:500; color:${color};">
+                                        ${icon} ${file.name} ${badges}
+                                    </div>
+                                    <div style="font-size:0.8em; color:#888;">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                                </div>
+                            </label>
+                            <div>${actionButtons}</div>
+                        `;
+
+                        sectionDiv.appendChild(row);
+                    });
+
+                    body.appendChild(sectionDiv);
+                });
+
+                courseCard.appendChild(header);
+                courseCard.appendChild(body);
+                container.appendChild(courseCard);
+            });
+        }
+
+
+
+        // Store videos globally for batch operations
+        let allVideos = [];
+
+        function displayVideos(videos) {
+            allVideos = videos;
+            const container = document.getElementById('videosContainer');
+            container.innerHTML = '';
+
+            // Group by course
+            const videosByCourse = {};
+            videos.forEach(video => {
+                const course = video.course || 'Unknown';
+                if (!videosByCourse[course]) {
+                    videosByCourse[course] = [];
+                }
+                videosByCourse[course].push(video);
+            });
+
+            Object.keys(videosByCourse).forEach(course => {
+                const courseGroup = document.createElement('div');
+                courseGroup.className = 'course-group';
+
+                // Count transcribed/analyzed in this course
+                const courseVideos = videosByCourse[course];
+                const transcribedCount = courseVideos.filter(v => v.has_transcript).length;
+                const analyzedCount = courseVideos.filter(v => v.has_analysis).length;
+
+                // Create a safe course ID for use in selectors
+                const courseId = course.replace(/[^a-zA-Z0-9가-힣]/g, '_');
+
+                courseGroup.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                        <h3 style="margin: 0;">${course}</h3>
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" onclick="selectCourseVideos('${courseId}')" style="font-size: 0.8em; padding: 4px 10px;">
+                                ☑️ Select All
+                            </button>
+                            <button class="btn btn-secondary" onclick="deselectCourseVideos('${courseId}')" style="font-size: 0.8em; padding: 4px 10px;">
+                                ☐ Deselect
+                            </button>
+                            <span class="status-badge ${transcribedCount === courseVideos.length ? 'status-transcribed' : 'status-pending'}">
+                                📝 ${transcribedCount}/${courseVideos.length} Transcribed
+                            </span>
+                            <span class="status-badge ${analyzedCount === courseVideos.length ? 'status-analyzed' : 'status-pending'}">
+                                🔍 ${analyzedCount}/${courseVideos.length} Analyzed
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                const videosList = document.createElement('div');
+                videosList.style.marginTop = '10px';
+
+                videosByCourse[course].forEach(video => {
+                    const videoItem = document.createElement('div');
+                    videoItem.className = 'video-item';
+                    const borderColor = video.has_transcript ? '#28a745' : '#ddd';
+                    videoItem.style.cssText = `padding: 10px; margin: 5px 0; background: white; border-radius: 4px; border: 2px solid ${borderColor}; border-left-width: 5px;`;
+
+                    const sizeMB = (video.size / (1024 * 1024)).toFixed(2);
+                    const modifiedDate = new Date(video.modified * 1000).toLocaleString();
+
+                    const statusBadges = [];
+                    if (video.has_transcript) {
+                        statusBadges.push('<span class="status-badge status-transcribed">✅ Transcribed</span>');
+                    } else {
+                        statusBadges.push('<span class="status-badge status-pending">⏳ Not Transcribed</span>');
+                    }
+                    if (video.has_analysis) {
+                        statusBadges.push('<span class="status-badge status-analyzed">✅ Analyzed</span>');
+                    }
+
+                    // Escape path for use in data attribute
+                    const escapedPath = video.path.replace(/'/g, "\\'");
+
+                    videoItem.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <input type="checkbox" class="video-checkbox" data-path="${escapedPath}" 
+                                       data-course="${courseId}" data-transcribed="${video.has_transcript}" data-analyzed="${video.has_analysis}"
+                                       style="width: 20px; height: 20px; margin-top: 3px; cursor: pointer;">
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; margin-bottom: 5px;">${video.name}</div>
+                                    <div style="font-size: 0.85em; color: #666;">
+                                        ${sizeMB} MB | ${modifiedDate}
+                                    </div>
+                                    <div style="margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap;">
+                                        ${statusBadges.join(' ')}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end;">
+                                <button class="btn btn-primary btn-sm" onclick="playVideo('${escapedPath}')" style="font-size: 0.8em; padding: 4px 8px;">▶️ Play</button>
+                                <button class="btn btn-secondary btn-sm" onclick="downloadVideo('${escapedPath}')" style="font-size: 0.8em; padding: 4px 8px;">⬇️ Download</button>
+                                ${video.has_transcript ? `<button class="btn btn-success btn-sm" onclick="viewSubtitle('${escapedPath}')" style="font-size: 0.8em; padding: 4px 8px;">📄 SRT</button>` : ''}
+                                ${video.has_transcript ? `<button class="btn btn-secondary btn-sm" onclick="viewTranscript('${escapedPath}')" style="font-size: 0.8em; padding: 4px 8px;">📝 Text</button>` : ''}
+                                ${video.has_analysis ? `<button class="btn btn-secondary btn-sm" onclick="viewAnalysis('${escapedPath}')" style="font-size: 0.8em; padding: 4px 8px;">🔍 Analysis</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+
+                    videosList.appendChild(videoItem);
+                });
+
+                courseGroup.appendChild(videosList);
+                container.appendChild(courseGroup);
+            });
+        }
+
+        async function transcribeVideo(videoPath) {
+            if (!confirm('Start transcription for this video? This may take a while.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/transcribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ video_path: videoPath })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Transcription started! Check the progress section.');
+                    document.getElementById('taskSection').classList.remove('hidden');
+                    monitorProgress(data.task_id);
+                    // Refresh video list after a delay
+                    setTimeout(loadVideos, 5000);
+                } else {
+                    alert('Failed to start transcription: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function analyzeVideo(videoPath) {
+            if (!confirm('Start video analysis for this video? This may take a while and requires a transcript.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ video_path: videoPath })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Video analysis started! Check the progress section.');
+                    document.getElementById('taskSection').classList.remove('hidden');
+                    monitorProgress(data.task_id);
+                    // Refresh video list after a delay
+                    setTimeout(loadVideos, 10000);
+                } else {
+                    alert('Failed to start analysis: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function viewTranscript(videoPath) {
+            // Open transcript in new window or download
+            const transcriptUrl = `/api/files/${encodeURIComponent(videoPath.replace(/\.mp4$/, '.txt'))}`;
+            window.open(transcriptUrl, '_blank');
+        }
+
+        function viewAnalysis(videoPath) {
+            // Open analysis summary in new window
+            const analysisPath = videoPath.replace(/\.mp4$/, '_analysis/frame_analysis_summary.txt');
+            const analysisUrl = `/api/files/${encodeURIComponent(analysisPath)}`;
+            window.open(analysisUrl, '_blank');
+        }
+
+        function playVideo(videoPath) {
+            // Open video in new window for playback
+            const videoUrl = `/api/files/${encodeURIComponent(videoPath)}`;
+            window.open(videoUrl, '_blank');
+        }
+
+        function downloadVideo(videoPath) {
+            // Download video file
+            const downloadUrl = `/api/download_file/${encodeURIComponent(videoPath)}`;
+            window.location.href = downloadUrl;
+        }
+
+        function viewSubtitle(videoPath) {
+            // Open SRT subtitle file
+            const srtPath = videoPath.replace(/\.mp4$/i, '.srt');
+            const srtUrl = `/api/files/${encodeURIComponent(srtPath)}`;
+            window.open(srtUrl, '_blank');
+        }
+
+        // Selection functions for videos
+        function selectAllVideos() {
+            document.querySelectorAll('.video-checkbox').forEach(cb => cb.checked = true);
+            updateSelectionCount();
+        }
+
+        function selectNoneVideos() {
+            document.querySelectorAll('.video-checkbox').forEach(cb => cb.checked = false);
+            updateSelectionCount();
+        }
+
+        function selectUntranscribed() {
+            document.querySelectorAll('.video-checkbox').forEach(cb => {
+                cb.checked = cb.dataset.transcribed === 'false';
+            });
+            updateSelectionCount();
+        }
+
+        function selectCourseVideos(courseId) {
+            document.querySelectorAll(`.video-checkbox[data-course="${courseId}"]`).forEach(cb => {
+                cb.checked = true;
+            });
+            updateSelectionCount();
+        }
+
+        function deselectCourseVideos(courseId) {
+            document.querySelectorAll(`.video-checkbox[data-course="${courseId}"]`).forEach(cb => {
+                cb.checked = false;
+            });
+            updateSelectionCount();
+        }
+
+        function updateSelectionCount() {
+            const selected = document.querySelectorAll('.video-checkbox:checked').length;
+            const total = document.querySelectorAll('.video-checkbox').length;
+            console.log(`Selected ${selected}/${total} videos`);
+        }
+
+        function getSelectedVideoPaths() {
+            return Array.from(document.querySelectorAll('.video-checkbox:checked'))
+                .map(cb => cb.dataset.path);
+        }
+
+        async function batchTranscribe() {
+            // Check if in local mode
+            const appInfo = await fetch('/api/app-info').then(r => r.json()).catch(() => ({ features: { transcription: false } }));
+            if (!appInfo.features || !appInfo.features.transcription) {
+                alert('Transcription is only available in local mode. Run app_local.py to enable transcription.');
+                return;
+            }
+            
+            const paths = getSelectedVideoPaths();
+            if (paths.length === 0) {
+                alert('Please select at least one video to transcribe');
+                return;
+            }
+
+            // Filter out already transcribed
+            const untranscribed = paths.filter(path => {
+                const cb = document.querySelector(`.video-checkbox[data-path="${path}"]`);
+                return cb && cb.dataset.transcribed === 'false';
+            });
+
+            if (untranscribed.length === 0) {
+                alert('All selected videos are already transcribed!');
+                return;
+            }
+
+            if (!confirm(`Start transcription for ${untranscribed.length} video(s)? This may take a while.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/batch-transcribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ video_paths: untranscribed })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('taskSection').classList.remove('hidden');
+                    monitorProgress(data.task_id);
+                } else {
+                    alert('Failed to start batch transcription: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function batchAnalyze(fastMode = false) {
+            // Check if in local mode
+            const appInfo = await fetch('/api/app-info').then(r => r.json()).catch(() => ({ features: { video_analysis: false } }));
+            if (!appInfo.features || !appInfo.features.video_analysis) {
+                alert('Video analysis is only available in local mode. Run app_local.py to enable analysis.');
+                return;
+            }
+            
+            const paths = getSelectedVideoPaths();
+            if (paths.length === 0) {
+                alert('Please select at least one video to analyze');
+                return;
+            }
+
+            // Filter out already analyzed
+            const unanalyzed = paths.filter(path => {
+                const cb = document.querySelector(`.video-checkbox[data-path="${path}"]`);
+                return cb && cb.dataset.analyzed === 'false';
+            });
+
+            if (unanalyzed.length === 0) {
+                alert('All selected videos are already analyzed!');
+                return;
+            }
+
+            const modeText = fastMode ? '(Fast mode - frames only)' : '(Full mode with LLM)';
+            if (!confirm(`Start analysis for ${unanalyzed.length} video(s)? ${modeText}\n\nFast mode: ~1 min per video\nFull mode: ~5-10 min per video`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/batch-analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        video_paths: unanalyzed,
+                        skip_llm: fastMode
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('taskSection').classList.remove('hidden');
+                    monitorProgress(data.task_id);
+                } else {
+                    alert('Failed to start batch analysis: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function monitorProgress(taskId) {
+            currentTaskId = taskId;
+            startTaskMonitoring();
+        }
+
+        // Make functions available globally
+        window.showVideos = showVideos;
+        window.loadVideos = loadVideos;
+        window.transcribeVideo = transcribeVideo;
+        window.analyzeVideo = analyzeVideo;
+        window.viewTranscript = viewTranscript;
+        window.viewAnalysis = viewAnalysis;
+        window.viewSubtitle = viewSubtitle;
+        window.playVideo = playVideo;
+        window.downloadVideo = downloadVideo;
+        // Global selection functions
+        function selectAllItems() {
+            document.querySelectorAll('.item-select').forEach(cb => cb.checked = true);
+        }
+
+        function deselectAllItems() {
+            document.querySelectorAll('.item-select').forEach(cb => cb.checked = false);
+        }
+
+        function selectRangeAllItems() {
+            const start = parseInt(document.getElementById('global-range-start').value);
+            const end = parseInt(document.getElementById('global-range-end').value);
+            
+            if (!start || !end || start < 1 || end < start) {
+                alert('Please enter valid range (From and To numbers)');
+                return;
+            }
+
+            const allItems = Array.from(document.querySelectorAll('.item-select'));
+            if (end > allItems.length) {
+                alert(`Range exceeds available items. Maximum: ${allItems.length}`);
+                return;
+            }
+
+            // Unselect all first
+            allItems.forEach(cb => cb.checked = false);
+            
+            // Select range (1-indexed to 0-indexed)
+            for (let i = start - 1; i < end && i < allItems.length; i++) {
+                allItems[i].checked = true;
+            }
+        }
+
+        // Course-level selection functions
+        function selectAllCourseItems(courseId) {
+            document.querySelectorAll(`.item-select[data-course-id="${courseId}"]`).forEach(cb => cb.checked = true);
+        }
+
+        function deselectAllCourseItems(courseId) {
+            document.querySelectorAll(`.item-select[data-course-id="${courseId}"]`).forEach(cb => cb.checked = false);
+        }
+
+        function selectRangeCourseItems(courseId) {
+            const startInput = document.getElementById(`course-range-start-${courseId}`);
+            const endInput = document.getElementById(`course-range-end-${courseId}`);
+            
+            if (!startInput || !endInput) {
+                alert('Range inputs not found');
+                return;
+            }
+
+            const start = parseInt(startInput.value);
+            const end = parseInt(endInput.value);
+            
+            if (!start || !end || start < 1 || end < start) {
+                alert('Please enter valid range (From and To numbers)');
+                return;
+            }
+
+            const courseItems = Array.from(document.querySelectorAll(`.item-select[data-course-id="${courseId}"]`));
+            if (end > courseItems.length) {
+                alert(`Range exceeds available items in this course. Maximum: ${courseItems.length}`);
+                return;
+            }
+
+            // Unselect all first
+            courseItems.forEach(cb => cb.checked = false);
+            
+            // Select range (1-indexed to 0-indexed)
+            for (let i = start - 1; i < end && i < courseItems.length; i++) {
+                courseItems[i].checked = true;
+            }
+        }
+
+        // Section-level selection functions (if not already defined)
+        function selectSectionVideos(courseId, sectionTitle) {
+            const sectionItems = Array.from(document.querySelectorAll(
+                `.item-select[data-course-id="${courseId}"][data-week="${sectionTitle}"]`
+            ));
+            sectionItems.forEach(cb => cb.checked = true);
+        }
+
+        function deselectSectionVideos(courseId, sectionTitle) {
+            const sectionItems = Array.from(document.querySelectorAll(
+                `.item-select[data-course-id="${courseId}"][data-week="${sectionTitle}"]`
+            ));
+            sectionItems.forEach(cb => cb.checked = false);
+        }
+
+        function selectRangeVideos(courseId, sectionTitle) {
+            const safeSectionId = sectionTitle.replace(/[^a-zA-Z0-9]/g, '_');
+            const startInput = document.getElementById(`range-start-${courseId}-${safeSectionId}`);
+            const endInput = document.getElementById(`range-end-${courseId}-${safeSectionId}`);
+            
+            if (!startInput || !endInput) {
+                alert('Range inputs not found');
+                return;
+            }
+
+            const start = parseInt(startInput.value);
+            const end = parseInt(endInput.value);
+            
+            if (!start || !end || start < 1 || end < start) {
+                alert('Please enter valid range (From and To numbers)');
+                return;
+            }
+
+            const sectionItems = Array.from(document.querySelectorAll(
+                `.item-select[data-course-id="${courseId}"][data-week="${sectionTitle}"]`
+            )).filter(cb => cb.dataset.type === 'video'); // Only videos have index
+
+            if (end > sectionItems.length) {
+                alert(`Range exceeds available videos in this section. Maximum: ${sectionItems.length}`);
+                return;
+            }
+
+            // Unselect all first
+            sectionItems.forEach(cb => cb.checked = false);
+            
+            // Select range based on data-index attribute
+            sectionItems.forEach(cb => {
+                const index = parseInt(cb.dataset.index || '0');
+                if (index >= start && index <= end) {
+                    cb.checked = true;
+                }
+            });
+        }
+
+        window.selectAllVideos = selectAllVideos;
+        window.selectNoneVideos = selectNoneVideos;
+        window.selectUntranscribed = selectUntranscribed;
+        window.selectCourseVideos = selectCourseVideos;
+        window.deselectCourseVideos = deselectCourseVideos;
+        window.batchTranscribe = batchTranscribe;
+        window.batchAnalyze = batchAnalyze;
+        window.refreshAndCheckStatus = refreshAndCheckStatus;
+        
+        // Export new functions
+        window.selectAllItems = selectAllItems;
+        window.deselectAllItems = deselectAllItems;
+        window.selectRangeAllItems = selectRangeAllItems;
+        window.selectAllCourseItems = selectAllCourseItems;
+        window.deselectAllCourseItems = deselectAllCourseItems;
+        window.selectRangeCourseItems = selectRangeCourseItems;
+        window.selectSectionVideos = selectSectionVideos;
+        window.deselectSectionVideos = deselectSectionVideos;
+        window.selectRangeVideos = selectRangeVideos;
+    </script>
+</body>
+
+</html>
