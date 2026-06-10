@@ -1,0 +1,16 @@
+Flask>=3.1,<4
+requests>=2.31,<3
+beautifulsoup4>=4.12,<5
+tqdm>=4.66,<5
+python-dotenv>=1.0,<2
+
+cryptography>=41,<47
+pycryptodome>=3.19,<4
+
+openai-whisper>=20250625
+imageio-ffmpeg>=0.6,<1
+ffmpeg-python>=0.2,<1
+
+opencv-python>=4.8,<5
+numpy>=1.24
+
