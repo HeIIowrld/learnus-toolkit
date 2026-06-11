@@ -425,8 +425,19 @@ class LearnUsScraper:
                     
                     # Determine activity type based on URL patterns
                     
-                    # 1. Files and Resources (mod/resource, mod/folder)
-                    if 'mod/resource' in href:
+                    # 1. Files and Resources (mod/ubfile, mod/resource, mod/folder)
+                    if 'mod/ubfile' in href:
+                        file_ext = (
+                            self._extract_file_extension(activity_name, href)
+                            or self._resolve_file_extension_from_url(href)
+                        )
+                        materials.append({
+                            'name': activity_name,
+                            'url': href,
+                            'type': 'file',
+                            'extension': file_ext
+                        })
+                    elif 'mod/resource' in href:
                         # Direct file resource
                         file_ext = self._extract_file_extension(activity_name, href)
                         materials.append({
@@ -543,6 +554,21 @@ class LearnUsScraper:
                 return ext
         
         return ''
+
+    def _resolve_file_extension_from_url(self, url: str) -> str:
+        """Resolve LearnUs file modules and infer the real file extension."""
+        if not url:
+            return ''
+
+        try:
+            response = self._get(url, timeout=20, stream=True, retries=1)
+            final_url = response.url or url
+            response.close()
+        except Exception:
+            return ''
+
+        path_part = unquote(final_url.split('?', 1)[0].rstrip('/'))
+        return self._extract_file_extension(path_part.rsplit('/', 1)[-1], final_url)
 
     def extract_video_url(self, lecture: LectureInfo) -> Optional[str]:
         """Extract the actual mp4/m3u8 URL from the viewer page"""

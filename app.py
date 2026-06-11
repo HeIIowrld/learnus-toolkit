@@ -178,6 +178,129 @@ def unique_download_path(path: Path, identity: str, used_paths: dict[Path, str])
         counter += 1
 
 
+def write_text_file(path: Path, text: str) -> None:
+    """Write a UTF-8 text artifact inside the download tree."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
+def download_file_item(
+    scraper: LearnUsScraper,
+    file_item: dict,
+    save_dir: Path,
+    used_paths: dict[Path, str],
+    messages: list[str],
+) -> bool:
+    """Download one resolved LearnUs file item into save_dir."""
+    file_name = file_item.get('name') or 'file'
+    file_url = file_item.get('url') or ''
+    extension = (file_item.get('extension') or '').strip()
+    if not extension and not Path(file_name).suffix and 'mod/ubfile' in file_url:
+        extension = scraper._resolve_file_extension_from_url(file_url)
+    if extension and not extension.startswith('.'):
+        extension = f".{extension}"
+    if extension and not Path(file_name).suffix:
+        file_name = f"{file_name}{extension}"
+    save_path = unique_download_path(save_dir / file_name, file_url, used_paths)
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if save_path.exists() and save_path.stat().st_size > 0:
+        messages.append(f"File exists: {save_path.name}")
+        return True
+
+    messages.append(f"Downloading file: {file_name}")
+    ok = scraper.download_file(file_url, str(save_path))
+    if not ok:
+        messages.append(f"Failed to download: {file_name}")
+    return ok
+
+
+def download_material_item(
+    scraper: LearnUsScraper,
+    material: dict,
+    week_dir: Path,
+    used_paths: dict[Path, str],
+    messages: list[str],
+) -> tuple[int, int]:
+    """Download a material, expanding folders and boards when needed."""
+    completed = 0
+    failed = 0
+    material_name = material.get('name') or 'Material'
+    material_url = material.get('url') or ''
+    material_type = material.get('type') or ''
+
+    if material_type == 'folder' or 'mod/folder' in material_url:
+        messages.append(f"Parsing folder: {material_name}")
+        folder_data = scraper.parse_folder_page(material_url)
+        folder_dir = week_dir / "Materials" / sanitize_filename(material_name)
+        if folder_data.get('description'):
+            write_text_file(folder_dir / "folder_description.txt", folder_data['description'])
+            completed += 1
+        for file_item in folder_data.get('files', []):
+            if download_file_item(scraper, file_item, folder_dir, used_paths, messages):
+                completed += 1
+            else:
+                failed += 1
+        return completed, failed
+
+    if material_type == 'board' or 'mod/ubboard' in material_url:
+        messages.append(f"Parsing board: {material_name}")
+        board_data = scraper.parse_board_page(material_url)
+        board_dir = week_dir / "Materials" / sanitize_filename(material_name)
+        if board_data.get('description'):
+            write_text_file(board_dir / "board_description.txt", board_data['description'])
+            completed += 1
+        for file_item in board_data.get('files', []):
+            if download_file_item(scraper, file_item, board_dir, used_paths, messages):
+                completed += 1
+            else:
+                failed += 1
+        return completed, failed
+
+    save_dir = week_dir / "Materials"
+    if download_file_item(scraper, material, save_dir, used_paths, messages):
+        completed += 1
+    else:
+        failed += 1
+    return completed, failed
+
+
+def download_assignment_item(
+    scraper: LearnUsScraper,
+    assignment: dict,
+    week_dir: Path,
+    used_paths: dict[Path, str],
+    messages: list[str],
+) -> tuple[int, int]:
+    """Download assignment description, instructor attachments, and submissions."""
+    completed = 0
+    failed = 0
+    assignment_name = assignment.get('name') or 'Assignment'
+    assignment_url = assignment.get('url') or ''
+    assign_dir = week_dir / "Assignments" / sanitize_filename(assignment_name)
+
+    messages.append(f"Processing assignment: {assignment_name}")
+    assign_data = scraper.parse_assignment_page(assignment_url)
+
+    if assign_data.get('description'):
+        write_text_file(assign_dir / "assignment_description.txt", assign_data['description'])
+        completed += 1
+
+    for req in assign_data.get('requirements', []):
+        if download_file_item(scraper, req, assign_dir / "Assignment Attachments", used_paths, messages):
+            completed += 1
+        else:
+            failed += 1
+
+    for sub in assign_data.get('submissions', []):
+        if download_file_item(scraper, sub, assign_dir / "My Submissions", used_paths, messages):
+            completed += 1
+        else:
+            failed += 1
+
+    return completed, failed
+
+
 # Import local processing modules (always available in local version)
 from learnus.processing import VideoAnalyzer, WhisperTranscriber, get_transcription_environment, Summarizer
 
@@ -1278,30 +1401,55 @@ def download_single_item():
                     task_status[task_id]['messages'].append(f"Failed to download: {lecture.title}")
                     
             elif item_type == 'material' or item_type == 'assignment':
-                # Create directory structure: year/semester/course/week/Materials or Assignments
                 week_dir = get_course_week_dir(year, semester, course_name, week)
-                
+
+                if not item_url:
+                    task_status[task_id]['status'] = 'error'
+                    task_status[task_id]['failed'] = 1
+                    task_status[task_id]['items'][item_id] = {'progress': 0, 'status': 'failed'}
+                    task_status[task_id]['messages'].append('Item URL required')
+                    return
+
+                task_status[task_id]['items'][item_id] = {'progress': 10, 'status': 'preparing'}
+                used_paths: dict[Path, str] = {}
+                item = {
+                    'name': item_name or item_id,
+                    'url': item_url,
+                    'type': item_type,
+                }
+
                 if item_type == 'material':
-                    save_dir = week_dir / "Materials"
+                    completed, failed = download_material_item(
+                        scraper,
+                        item,
+                        week_dir,
+                        used_paths,
+                        task_status[task_id]['messages'],
+                    )
                 else:
-                    save_dir = week_dir / "Assignments"
-                
-                save_dir.mkdir(parents=True, exist_ok=True)
-                save_path = save_dir / item_name
-                
-                if save_path.exists():
+                    completed, failed = download_assignment_item(
+                        scraper,
+                        item,
+                        week_dir,
+                        used_paths,
+                        task_status[task_id]['messages'],
+                    )
+
+                task_status[task_id]['completed'] = completed
+                task_status[task_id]['failed'] = failed
+
+                if failed == 0:
                     task_status[task_id]['status'] = 'completed'
-                    task_status[task_id]['completed'] = 1
-                    task_status[task_id]['messages'].append('File already exists')
+                    task_status[task_id]['items'][item_id] = {'progress': 100, 'status': 'completed'}
+                    task_status[task_id]['messages'].append(
+                        f"Completed {completed} file(s) for: {item_name or item_id}"
+                    )
                 else:
-                    if scraper.download_file(item_url, str(save_path)):
-                        task_status[task_id]['status'] = 'completed'
-                        task_status[task_id]['completed'] = 1
-                        task_status[task_id]['items'][item_id] = {'progress': 100, 'status': 'completed'}
-                    else:
-                        task_status[task_id]['status'] = 'error'
-                        task_status[task_id]['failed'] = 1
-                        task_status[task_id]['items'][item_id] = {'progress': 0, 'status': 'failed'}
+                    task_status[task_id]['status'] = 'error'
+                    task_status[task_id]['items'][item_id] = {'progress': 100, 'status': 'failed'}
+                    task_status[task_id]['messages'].append(
+                        f"Completed {completed} file(s), failed {failed} file(s) for: {item_name or item_id}"
+                    )
             
             # Update hierarchy file
             update_hierarchy_file()
@@ -2095,135 +2243,32 @@ def download_materials():
                     processed_count += 1
                     task_status[task_id]['current_item'] = mat['name']
                     task_status[task_id]['progress'] = int((processed_count / (total_items or 1)) * 100)
-                    
-                    mat_type = mat.get('type', 'file')
-                    
-                    if mat_type == 'folder':
-                        # Parse folder page to get actual files
-                        task_status[task_id]['messages'].append(f"Parsing folder: {mat['name']}")
-                        folder_data = scraper.parse_folder_page(mat['url'])
-                        
-                        # Save folder description if available
-                        if folder_data.get('description'):
-                            folder_dir = (
-                                get_course_week_dir(year, semester, course_name, section_title)
-                                / "Materials"
-                                / sanitize_filename(mat['name'])
-                            )
-                            folder_dir.mkdir(parents=True, exist_ok=True)
-                            desc_path = folder_dir / "folder_description.txt"
-                            try:
-                                with open(desc_path, 'w', encoding='utf-8') as f:
-                                    f.write(folder_data['description'])
-                                task_status[task_id]['messages'].append(f"Saved folder description: {mat['name']}")
-                            except Exception as e:
-                                task_status[task_id]['messages'].append(f"Failed to save description: {e}")
-                        
-                        # Download files from folder
-                        folder_dir = (
-                            get_course_week_dir(year, semester, course_name, section_title)
-                            / "Materials"
-                            / sanitize_filename(mat['name'])
-                        )
-                        for file_item in folder_data.get('files', []):
-                            save_path = unique_download_path(
-                                folder_dir / (file_item.get('name') or 'file'),
-                                file_item.get('url', ''),
-                                used_material_paths,
-                            )
-                            save_path.parent.mkdir(parents=True, exist_ok=True)
-                            if not save_path.exists():
-                                task_status[task_id]['messages'].append(f"Downloading from folder: {file_item.get('name') or save_path.name}")
-                                if scraper.download_file(file_item.get('url', ''), str(save_path)):
-                                    task_status[task_id]['completed'] += 1
-                                else:
-                                    task_status[task_id]['failed'] += 1
-                            else:
-                                task_status[task_id]['completed'] += 1
-                    else:
-                        # Regular file download
-                        save_dir = get_course_week_dir(year, semester, course_name, section_title) / "Materials"
-                        save_dir.mkdir(parents=True, exist_ok=True)
-                        save_path = unique_download_path(
-                            save_dir / (mat.get('name') or 'file'),
-                            mat.get('url', ''),
-                            used_material_paths,
-                        )
-                        
-                        if not save_path.exists():
-                            task_status[task_id]['messages'].append(f"Downloading file: {mat.get('name') or save_path.name}")
-                            if scraper.download_file(mat.get('url', ''), str(save_path)):
-                                task_status[task_id]['completed'] += 1
-                            else:
-                                task_status[task_id]['failed'] += 1
-                                task_status[task_id]['messages'].append(f"Failed to download: {mat.get('name') or save_path.name}")
-                        else:
-                            task_status[task_id]['messages'].append(f"File exists: {mat.get('name') or save_path.name}")
-                            task_status[task_id]['completed'] += 1
+
+                    completed, failed = download_material_item(
+                        scraper,
+                        mat,
+                        get_course_week_dir(year, semester, course_name, section_title),
+                        used_material_paths,
+                        task_status[task_id]['messages'],
+                    )
+                    task_status[task_id]['completed'] += completed
+                    task_status[task_id]['failed'] += failed
 
                 # Process Assignments
                 for assign in section['assignments']:
                     processed_count += 1
                     task_status[task_id]['current_item'] = assign['name']
                     task_status[task_id]['progress'] = int((processed_count / (total_items or 1)) * 100)
-                    task_status[task_id]['messages'].append(f"Processing assignment: {assign['name']}")
-                    
-                    assign_dir = (
-                        get_course_week_dir(year, semester, course_name, section_title)
-                        / "Assignments"
-                        / sanitize_filename(assign['name'])
+
+                    completed, failed = download_assignment_item(
+                        scraper,
+                        assign,
+                        get_course_week_dir(year, semester, course_name, section_title),
+                        used_material_paths,
+                        task_status[task_id]['messages'],
                     )
-                    assign_dir.mkdir(parents=True, exist_ok=True)
-                    
-                    assign_data = scraper.parse_assignment_page(assign.get('url'))
-                    
-                    # Save assignment description as text file
-                    if assign_data.get('description'):
-                        desc_path = assign_dir / "assignment_description.txt"
-                        try:
-                            with open(desc_path, 'w', encoding='utf-8') as f:
-                                f.write(assign_data['description'])
-                            task_status[task_id]['messages'].append(f"Saved assignment description: {assign['name']}")
-                        except Exception as e:
-                            task_status[task_id]['messages'].append(f"Failed to save description: {e}")
-                    
-                    # Download Requirements
-                    for req in assign_data.get('requirements', []):
-                        save_dir = assign_dir / "Assignment Attachments"
-                        save_dir.mkdir(parents=True, exist_ok=True)
-                        save_path = unique_download_path(
-                            save_dir / (req.get('name') or 'file'),
-                            req.get('url', ''),
-                            used_material_paths,
-                        )
-                        if not save_path.exists():
-                            task_status[task_id]['messages'].append(f"Downloading requirement: {req.get('name') or save_path.name}")
-                            if scraper.download_file(req.get('url', ''), str(save_path)):
-                                task_status[task_id]['completed'] += 1
-                            else:
-                                task_status[task_id]['failed'] += 1
-                        else:
-                            task_status[task_id]['completed'] += 1
-                    
-                    # Download Submissions
-                    for sub in assign_data.get('submissions', []):
-                        save_dir = assign_dir / "My Submissions"
-                        save_dir.mkdir(parents=True, exist_ok=True)
-                        save_path = unique_download_path(
-                            save_dir / (sub.get('name') or 'file'),
-                            sub.get('url', ''),
-                            used_material_paths,
-                        )
-                        if not save_path.exists():
-                            task_status[task_id]['messages'].append(f"Downloading submission: {sub.get('name') or save_path.name}")
-                            if scraper.download_file(sub.get('url', ''), str(save_path)):
-                                task_status[task_id]['completed'] += 1
-                            else:
-                                task_status[task_id]['failed'] += 1
-                        else:
-                            task_status[task_id]['completed'] += 1
-                            
-                    task_status[task_id]['completed'] += 1
+                    task_status[task_id]['completed'] += completed
+                    task_status[task_id]['failed'] += failed
 
             task_status[task_id]['status'] = 'completed'
             task_status[task_id]['messages'].append("Download materials task completed")
