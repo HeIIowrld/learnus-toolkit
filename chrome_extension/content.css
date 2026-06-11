@@ -1,146 +1,202 @@
+#learnus-downloader-panel,
+#learnus-downloader-panel *,
+#learnus-downloader-panel *::before,
+#learnus-downloader-panel *::after,
+.learnus-inline-video-button,
+.learnus-inline-video-button::before,
+.learnus-inline-video-button::after {
+  box-sizing: border-box !important;
+}
+
 #learnus-downloader-panel {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 2147483647;
-  width: min(360px, calc(100vw - 28px));
-  max-height: min(620px, calc(100vh - 28px));
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px;
-  border: 1px solid rgba(0, 56, 117, 0.18);
-  border-radius: 8px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
-  background: #ffffff;
-  color: #1f2937;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 13px;
-  line-height: 1.4;
+  all: initial;
+  position: fixed !important;
+  right: 18px !important;
+  bottom: 18px !important;
+  z-index: 2147483647 !important;
+  width: min(360px, calc(100vw - 28px)) !important;
+  max-height: min(620px, calc(100vh - 28px)) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  contain: layout style paint !important;
+  padding: 14px !important;
+  border: 1px solid rgba(0, 56, 117, 0.18) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18) !important;
+  background: #ffffff !important;
+  color: #1f2937 !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0 !important;
+  text-align: left !important;
+  text-shadow: none !important;
 }
 
 #learnus-downloader-panel.learnus-downloader-minimized {
-  width: auto;
-  max-width: calc(100vw - 28px);
+  width: auto !important;
+  max-width: calc(100vw - 28px) !important;
 }
 
 #learnus-downloader-panel.learnus-downloader-minimized .learnus-downloader-body {
-  display: none;
+  display: none !important;
 }
 
 .learnus-downloader-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
 }
 
 .learnus-downloader-title {
-  min-width: 0;
-  font-weight: 700;
-  color: #003875;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 0 !important;
+  font-weight: 700 !important;
+  color: #003875 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .learnus-downloader-body {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow: auto;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+  overscroll-behavior: contain !important;
 }
 
 .learnus-downloader-actions,
 .learnus-downloader-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 
 .learnus-downloader-path {
-  min-width: 0;
-  overflow: hidden;
-  padding: 6px 8px;
-  border-radius: 6px;
-  background: #eef4fb;
-  color: #475569;
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding: 6px 8px !important;
+  border-radius: 6px !important;
+  background: #eef4fb !important;
+  color: #475569 !important;
+  font-size: 12px !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
 }
 
 .learnus-downloader-button,
 .learnus-inline-video-button {
-  border: 1px solid #003875;
-  border-radius: 6px;
-  background: #003875;
-  color: #ffffff;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 600;
-  line-height: 1.2;
-  padding: 7px 10px;
+  appearance: none !important;
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  border: 1px solid #003875 !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  background: #003875 !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  font: inherit !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  text-shadow: none !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  padding: 7px 10px !important;
 }
 
 .learnus-downloader-button.secondary {
-  background: #ffffff;
-  color: #003875;
+  background: #ffffff !important;
+  color: #003875 !important;
 }
 
 .learnus-downloader-button:disabled,
 .learnus-inline-video-button:disabled {
-  cursor: default;
-  opacity: 0.55;
+  cursor: default !important;
+  opacity: 0.55 !important;
 }
 
 .learnus-downloader-status {
-  min-height: 20px;
-  padding: 8px;
-  border-radius: 6px;
-  background: #f4f7fb;
-  color: #374151;
-  white-space: pre-line;
+  min-height: 20px !important;
+  overflow-wrap: anywhere !important;
+  padding: 8px !important;
+  border-radius: 6px !important;
+  background: #f4f7fb !important;
+  color: #374151 !important;
+  white-space: pre-line !important;
 }
 
 .learnus-downloader-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 220px;
-  overflow: auto;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  max-height: 220px !important;
+  overflow: auto !important;
 }
 
 .learnus-downloader-video {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px;
-  align-items: center;
-  padding: 8px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+  padding: 8px !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 6px !important;
 }
 
 .learnus-downloader-video-title {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#learnus-downloader-panel details,
+#learnus-downloader-panel summary,
+#learnus-downloader-panel span,
+#learnus-downloader-panel div,
+#learnus-downloader-panel strong {
+  margin: 0 !important;
+  border: 0 !important;
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+}
+
+#learnus-downloader-panel strong {
+  font-weight: 700 !important;
+}
+
+#learnus-downloader-panel summary {
+  cursor: pointer !important;
 }
 
 .learnus-inline-video-button {
-  margin-left: 8px;
-  padding: 5px 8px;
-  font-size: 12px;
-  vertical-align: middle;
+  margin-left: 8px !important;
+  padding: 5px 8px !important;
+  font-size: 12px !important;
+  vertical-align: middle !important;
 }
 
 @media (max-width: 640px) {
   #learnus-downloader-panel {
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    width: auto;
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    width: auto !important;
   }
 }
