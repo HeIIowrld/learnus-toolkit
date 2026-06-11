@@ -35,6 +35,9 @@ CERT = RUNTIME / "cert.pem"
 KEY = RUNTIME / "key.pem"
 EXTENSION_SOURCE = (ROOT / "chrome_extension").resolve()
 EXTENSION_DIR = RUNTIME / "extension"
+EXPECTED_MATERIALS = "5"
+EXPECTED_VIDEOS = "1"
+EXPECTED_DOWNLOADS = 8
 
 COURSE_HTML = """<!doctype html>
 <html lang="ko">
@@ -49,6 +52,18 @@ COURSE_HTML = """<!doctype html>
       </div>
       <div class="activityinstance">
         <a href="/pluginfile.php/111/mod_resource/content/1/slides.pdf"><span class="instancename">강의자료.pdf 파일</span></a>
+      </div>
+      <div class="activityinstance">
+        <a href="/mod/ubfile/view.php?id=222"><span class="instancename">Exercise Script</span></a>
+      </div>
+      <div class="activityinstance">
+        <a href="/mod/folder/view.php?id=333"><span class="instancename">Practice Files</span></a>
+      </div>
+      <div class="activityinstance">
+        <a href="/mod/ubboard/view.php?id=444"><span class="instancename">Class Board</span></a>
+      </div>
+      <div class="activityinstance">
+        <a href="/mod/assign/view.php?id=555"><span class="instancename">Homework Assignment</span></a>
       </div>
     </li>
   </ul>
@@ -85,17 +100,65 @@ class TestPageHandler(BaseHTTPRequestHandler):
         return
 
     def do_GET(self) -> None:
-        path = urllib.parse.urlparse(self.path).path
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
         if path == "/course/view.php":
             self._send(200, "text/html; charset=utf-8", COURSE_HTML.encode("utf-8"))
         elif path == "/mod/vod/viewer.php":
             self._send(200, "text/html; charset=utf-8", VIEWER_HTML.encode("utf-8"))
-        elif path.endswith("/slides.pdf"):
+        elif path == "/mod/ubfile/view.php":
+            self._redirect("/pluginfile.php/222/mod_ubfile/content/0/exercise.ipynb?forcedownload=1")
+        elif path == "/mod/folder/view.php":
+            self._send(
+                200,
+                "text/html; charset=utf-8",
+                b"""<!doctype html><html><body>
+                <a href="/pluginfile.php/333/mod_folder/content/0/data.csv?forcedownload=1">data.csv</a>
+                <a href="/pluginfile.php/333/mod_folder/content/0/notebook.ipynb?forcedownload=1">notebook.ipynb</a>
+                </body></html>""",
+            )
+        elif path == "/mod/ubboard/view.php" and "bwid" not in urllib.parse.parse_qs(parsed.query):
+            self._send(
+                200,
+                "text/html; charset=utf-8",
+                b"""<!doctype html><html><body>
+                <a href="/mod/ubboard/view.php?id=444&amp;bwid=777">Board Post</a>
+                </body></html>""",
+            )
+        elif path == "/mod/ubboard/view.php":
+            self._send(
+                200,
+                "text/html; charset=utf-8",
+                b"""<!doctype html><html><body>
+                <a href="/pluginfile.php/444/mod_ubboard/attachment/777/board.csv?forcedownload=1">board.csv</a>
+                </body></html>""",
+            )
+        elif path == "/mod/assign/view.php":
+            self._send(
+                200,
+                "text/html; charset=utf-8",
+                b"""<!doctype html><html><body>
+                <a href="/pluginfile.php/555/mod_assign/introattachment/0/guide.pdf?forcedownload=1">guide.pdf</a>
+                <a href="/pluginfile.php/555/assignsubmission_file/submission_files/1/submission.docx?forcedownload=1">submission.docx</a>
+                </body></html>""",
+            )
+        elif path.endswith(".pdf"):
             self._send(200, "application/pdf", b"%PDF-1.4\n% test pdf\n")
+        elif path.endswith(".ipynb"):
+            self._send(200, "application/x-ipynb+json", b'{"cells":[],"metadata":{},"nbformat":4,"nbformat_minor":5}\n')
+        elif path.endswith(".csv"):
+            self._send(200, "text/csv", b"x,y\n1,2\n")
+        elif path.endswith(".docx"):
+            self._send(200, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", b"docx-test\n")
         elif path == "/video/sample.mp4":
             self._send(200, "video/mp4", SAMPLE_MP4)
         else:
             self._send(404, "text/plain", b"not found")
+
+    def _redirect(self, location: str) -> None:
+        self.send_response(303)
+        self.send_header("Location", location)
+        self.end_headers()
 
     def _send(self, status: int, content_type: str, body: bytes) -> None:
         self.send_response(status)
@@ -298,17 +361,17 @@ def run_extension_attempt(browser: Path, test_url: str, variant: dict) -> dict:
             attempt["download_probe"] = download_probe
             attempt["downloaded_files"] = downloaded_files
             attempt["render_ok"] = (
-                info.get("materials") == "1"
-                and info.get("videos") == "1"
+                info.get("materials") == EXPECTED_MATERIALS
+                and info.get("videos") == EXPECTED_VIDEOS
                 and info.get("inlineButtons") == 1
                 and bool(toggle.get("minimized"))
             )
             attempt["download_ok"] = (
                 download_probe.get("materialsDone")
                 and download_probe.get("videosDone")
-                and len(downloaded_files) >= 2
+                and len(downloaded_files) >= EXPECTED_DOWNLOADS
             )
-            attempt["ok"] = attempt["render_ok"]
+            attempt["ok"] = attempt["render_ok"] and attempt["download_ok"]
     except Exception as exc:
         attempt["error"] = repr(exc)
     finally:
@@ -378,8 +441,8 @@ def run_manual_injection_audit(browser: Path, test_url: str) -> dict:
                 "minimized_screenshot": relative_artifact_path(minimized_path),
                 "ok": (
                     info.get("panel")
-                    and info.get("materials") == "1"
-                    and info.get("videos") == "1"
+                    and info.get("materials") == EXPECTED_MATERIALS
+                    and info.get("videos") == EXPECTED_VIDEOS
                     and info.get("inlineButtons") == 1
                     and bool(toggle.get("minimized"))
                 ),
@@ -685,7 +748,7 @@ def run_download_probe(cdp: WebSocketCDP, profile: Path) -> dict:
         "ok": False,
         "status": video_click.get("error", ""),
     }
-    downloaded_files = wait_for_downloaded_files(download_dir_for_profile(profile), expected_count=2)
+    downloaded_files = wait_for_downloaded_files(download_dir_for_profile(profile), expected_count=EXPECTED_DOWNLOADS)
 
     return {
         "materialClick": material_click,
@@ -774,10 +837,21 @@ def read_profile_extension_state(profile: Path) -> dict:
 
 def write_result(result: dict) -> None:
     ensure_report_dirs()
+    safe_result = sanitize_json_value(result)
     (AUDIT_DIR / "extension_render_audit.json").write_text(
-        json.dumps(result, ensure_ascii=False, indent=2),
+        json.dumps(safe_result, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+
+
+def sanitize_json_value(value):
+    if isinstance(value, str):
+        return "".join(ch for ch in value if ord(ch) >= 32 or ch in "\n\r\t")
+    if isinstance(value, list):
+        return [sanitize_json_value(item) for item in value]
+    if isinstance(value, dict):
+        return {key: sanitize_json_value(item) for key, item in value.items()}
+    return value
 
 
 if __name__ == "__main__":

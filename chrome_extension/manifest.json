@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "LearnUs Downloader",
+  "description": "Download LearnUs course materials and videos from the course page.",
+  "version": "1.0.0",
+  "permissions": [
+    "downloads",
+    "offscreen",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://ys.learnus.org/*",
+    "https://*.learnus.org/*",
+    "https://*.yonsei.ac.kr/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://ys.learnus.org/course/view.php*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "LearnUs Downloader",
+    "default_popup": "popup.html"
+  }
+}
